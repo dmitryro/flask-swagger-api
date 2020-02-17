@@ -1,0 +1,9 @@
+amqp
+Babel
+billiard
+celery
+flower
+kombu
+pytz
+redis
+vine
