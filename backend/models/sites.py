@@ -85,7 +85,7 @@ class Site(Base):
     port = Column(Integer, primary_key=True)
     ip = Column(String(256), unique=True)
     date_last_crawled = Column(DateTime(timezone=True),    
-                                  server_default=func.now())
+                               server_default=func.now())
 
 
     __tablename__ = "sites"
