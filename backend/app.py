@@ -1,4 +1,4 @@
-# Copyright 2016, 2017 John J. Rofrano. All Rights Reserved.
+# Copyright 2019, 2020 Dmitry Roitman. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ from werkzeug.exceptions import NotFound
 from blueprints.users import users_blueprint
 from blueprints.contacts import contacts_blueprint
 from blueprints.states import states_blueprint
+from blueprints.sites import sites_blueprint
 
 # Pull options from environment
 debug = (os.getenv('DEBUG', 'False') == 'True')
@@ -31,6 +32,7 @@ def create_app():
     app.register_blueprint(users_blueprint)
     app.register_blueprint(contacts_blueprint)
     app.register_blueprint(states_blueprint)
+    app.register_blueprint(sites_blueprint)
 
     # Configure Swagger before initilaizing it
     app.config['SWAGGER'] = {

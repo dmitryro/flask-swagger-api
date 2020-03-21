@@ -52,6 +52,68 @@ CREATE TABLE states (
         code varchar(10) NOT NULL UNIQUE
     );
 
+
+CREATE SEQUENCE site_id_seq;
+
+CREATE TABLE sites (
+        id integer NOT NULL DEFAULT nextval('site_id_seq'),
+        host varchar(2048),
+        port integer,
+        ip varchar(256),
+        date_last_crawled date NOT NULL,
+        UNIQUE(id)
+   );
+
+
+CREATE SEQUENCE page_id_seq;
+ 
+CREATE TABLE pages (
+        id integer NOT NULL DEFAULT nextval('page_id_seq'),
+        name varchar(2048),
+        meta varchar(2048),
+        headers varchar(2048),
+        site_id integer NOT NULL UNIQUE,
+        FOREIGN KEY(site_id) REFERENCES sites(id) ON DELETE CASCADE,
+        UNIQUE(id)        
+    );
+
+CREATE SEQUENCE form_id_seq;
+
+CREATE TABLE forms (
+        id integer NOT NULL DEFAULT nextval('form_id_seq'),
+        form_id varchar(256),
+        name varchar(256),
+        method varchar(256),
+        body varchar(256),
+        page_id integer NOT NULL UNIQUE,
+        FOREIGN KEY(page_id) REFERENCES pages(id) ON DELETE CASCADE,
+        UNIQUE(id)
+    );
+
+CREATE SEQUENCE formfield_id_seq;
+
+CREATE TABLE formfields (
+        id integer NOT NULL DEFAULT nextval('formfield_id_seq'),
+        field_id varchar(256),
+        field_name varchar(256),
+        field_value varchar(256),
+        form_id integer NOT NULL UNIQUE,
+        FOREIGN KEY(form_id) REFERENCES forms(id) ON DELETE CASCADE,
+        UNIQUE(id)
+    );
+
+ALTER SEQUENCE formfield_id_seq 
+OWNED BY formfields.id;
+
+ALTER SEQUENCE form_id_seq 
+OWNED BY forms.id;
+
+ALTER SEQUENCE page_id_seq 
+OWNED BY pages.id;
+
+ALTER SEQUENCE site_id_seq 
+OWNED BY sites.id;
+
 ALTER SEQUENCE user_id_seq
 OWNED BY users.id;
 
