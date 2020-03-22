@@ -4,7 +4,7 @@
 from datetime import datetime
 import logging
  
-from flask import Blueprint, Flask, jsonify, render_template, request, url_for, make_response
+from flask import Blueprint, Flask, json, jsonify, render_template, request, url_for, make_response
 from flasgger import Swagger
 from flask_api import status    # HTTP Status Codes
 from flask_cors import CORS, cross_origin
@@ -35,7 +35,7 @@ def obtain_session():
 def get_state(id):
     """
     Retrieve a single state
-    This endpoint will return a User based on it's id
+    This endpoint will return a State based on it's id
     ---
     tags:
       - States
@@ -44,16 +44,16 @@ def get_state(id):
     parameters:
       - name: id
         in: path
-        description: ID of user to retrieve
+        description: ID of state to retrieve
         type: integer
         required: true
     responses:
       200:
-        description: User returned
+        description: State returned
         schema:
-          $ref: '#/definitions/User'
+          $ref: '#/definitions/State'
       404:
-        description: User not found
+        description: State not found
     """
     sess = obtain_session()
     state = sess.query(State).get(id)
@@ -65,30 +65,30 @@ def get_state(id):
 @states_blueprint.route("/states", methods=['GET'])
 def list_states():
     """
-    Retrieve a list of Users
-    This endpoint will return all Users unless a query parameter is specificed
+    Retrieve a list of States
+    This endpoint will return all States unless a query parameter is specificed
     ---
     tags:
       - States
-    description: The Users endpoint allows you to query Users
+    description: The State endpoint allows you to query States
     definitions:
       State:
         type: object
         properties:
             name:
               type: string
-              description: First name for the user
+              description: State name
             code:
               type: string
-              description: Last name of the user
+              description: State code
     responses:
       200:
-        description: An array of Users
+        description: An array of States
         schema:
           type: array
           items:
             schema:
-              $ref: '#/definitions/User'
+              $ref: '#/definitions/State'
     """
     sess = obtain_session()
     all_states = sess.query(State).all()
@@ -101,20 +101,20 @@ def list_states():
 def delete_state(id):
     """
     Delete a State
-    This endpoint will delete a User based the id specified in the path
+    This endpoint will delete a State based the id specified in the path
     ---
     tags:
       - States
-    description: Deletes a User from the database
+    description: Deletes a State from the database
     parameters:
       - name: id
         in: path
-        description: ID of user to delete
+        description: ID of state to delete
         type: integer
         required: true
     responses:
       204:
-        description: User deleted
+        description: State deleted
     """
     return make_response('', status.HTTP_204_NO_CONTENT)
 
@@ -123,7 +123,7 @@ def delete_state(id):
 def update_state(id):
     """
     Update a State
-    This endpoint will update a User based the body that is posted
+    This endpoint will update a State based the body that is posted
     ---
     tags:
       - States
@@ -153,7 +153,7 @@ def update_state(id):
               description: State or province code
     responses:
       200:
-        description: User Updated
+        description: State Updated
         schema:
           $ref: '#/definitions/State'
       400:
@@ -179,7 +179,7 @@ def create_state():
         name: body
         required: true
         schema:
-          id: data
+          id: state_data
           required:
             - name
             - code
@@ -192,11 +192,19 @@ def create_state():
               description: State code
     responses:
       201:
-        description: User created
+        description: State created
         schema:
-          $ref: '#/definitions/User'
+          $ref: '#/definitions/State'
       400:
         description: Bad Request (the posted data was not valid)
     """
+    result = []
+    try:
+        data = request.json
+        name = data.get("name", "")
+        code = data.get("code", "")
+    except Exception as e:
+        print(f"SOME SHIT HAPPENED IN CREATING STATE {e}")
+
     return make_response(jsonify([]), status.HTTP_201_CREATED,
                          {'Location': '' })

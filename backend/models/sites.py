@@ -90,7 +90,7 @@ class Site(Base):
 
     __tablename__ = "sites"
 
-    def __init__(self, host=None, post=None,
+    def __init__(self, host=None, port=None,
                  date_last_crawled=func.now()):
         self.host = host
         self.port = port

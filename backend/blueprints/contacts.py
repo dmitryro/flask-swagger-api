@@ -188,8 +188,8 @@ def update_contact(id):
 @contacts_blueprint.route("/contacts", methods=['POST'])
 def create_contact():
     """
-    Creates a Contact
-    This endpoint will create a Contact based the data in the body that is posted
+    Create a new Site
+    This endpoint will return a Site with any pages and forms parsed
     ---
     tags:
       - Contacts
@@ -197,7 +197,6 @@ def create_contact():
       - application/json
     produces:
       - application/json
-    parameters:
       - in: body
         name: body
         required: true
@@ -208,28 +207,29 @@ def create_contact():
             - email
             - phone
           properties:
-            first_name:
-              type: string
-              description: First name for the contact
-            last_name:
-              type: string
-              description: Last name of the contact
             username:
               type: string
-              description: Contactname of the contact
-            email:
+              description: Username
+            first_name:
               type: string
-              description: Email of the contact
+              description: First Name
+            last_name:
+              type: string
+              description: Last Name
             phone:
               type: string
-              description: Phone of the contact
+              description: Phone
+            email:
+              type: email
+              description: Email
     responses:
-      201:
-        description: Contact created
+      200:
+        description: Contact returned
         schema:
           $ref: '#/definitions/Contact'
-      400:
-        description: Bad Request (the posted data was not valid)
+      404:
+        description: Contact not found
     """
+
     return make_response(jsonify([]), status.HTTP_201_CREATED,
                          {'Location': '' })
