@@ -21,6 +21,7 @@ from models.sites import Site, SiteSchema
 from models.sites import Page, PageSchema
 from models.sites import Form, FormSchema
 from models.sites import FormField, FormFieldSchema
+from utils.spide import crawl, internal_urls 
 
 sites_blueprint = Blueprint('sites', __name__, template_folder='templates')
 
@@ -30,7 +31,7 @@ logger.setLevel(logging.DEBUG)
 def obtain_session():
     """ Get SQLAlchemy session """
     engine = create_engine('postgresql+psycopg2://postgres:postgres@postgres:5432/postgres')
-    session = sessionmaker()
+    session = sessionmaker(autoflush=True)
     # Bind the sessionmaker to engine
     session.configure(bind=engine)
     return session()
@@ -101,6 +102,7 @@ def create_site():
       400:
         description: Bad Request (the posted data was not valid)
     """
+    l = []
     try:
         data = request.json
         host = data.get("host", "")
@@ -112,15 +114,33 @@ def create_site():
         s.add(site)
         s.commit()
         s.flush()
+
+
+        site_links = crawl("https://lovehate.io", max_urls=20)
+        crawled_pages = list(site_links)
+
+        page_schema = PageSchema(many=True)
+        site_schema = SiteSchema(many=False)
+        pages = []
+
+        for page in crawled_pages:
+            p = Page(name=page, site_id=site.id, headers='')
+            s.add(p)
+            pages.append(p)            
+
+        s.commit()
+        s.flush()
+        
+        pages_result = page_schema.dump(pages)
+        result = site_schema.dump(site)
+        result['pages'] = pages_result
         logging.info(f"Saved new site {host} {port}")
+        return make_response(jsonify(result),  status.HTTP_201_CREATED)
     except Exception as e:
+        print(f"-------------> Failed saving site - {e}")
         logging.error(f"Failed saving site - {e}")
 
-    sess = obtain_session()
-    all_sites  = sess.query(Site).all()
-    sites_schema = SiteSchema(many=True)
-    result = sites_schema.dump(all_sites)
-    return make_response(jsonify(result), status.HTTP_201_CREATED)
+    return make_response(jsonify(l), status.HTTP_201_CREATED)
 
 @sites_blueprint.route("/sites", methods=['GET'])
 def list_sites():
@@ -154,4 +174,76 @@ def list_sites():
     all_sites  = sess.query(Site).all()
     sites_schema = SiteSchema(many=True)
     result = sites_schema.dump(all_sites)
+    return make_response(jsonify(result), status.HTTP_200_OK)
+
+
+@sites_blueprint.route("/pages/<int:site_id>", methods=['GET'])
+def get_pages(site_id):
+    """
+    Retrieve a single Page by Site ID
+    This endpoint will return a Page based on it's site_id
+    ---
+    tags:
+      - Pages
+    produces:
+      - application/json
+    parameters:
+      - name: site_id
+        in: path
+        description: ID of site to retrieve
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Site returned
+        schema:
+          $ref: '#/definitions/Page'
+      404:
+        description: Site not found
+    """
+    sess = obtain_session()
+    page = sess.query(Page).filter(site_id==site_id)
+    page_schema = PageSchema(many=True)
+    result = page_schema.dump(page)
+    return make_response(jsonify(result), status.HTTP_200_OK)
+
+
+@sites_blueprint.route("/pages", methods=['GET'])
+def list_pages():
+    """
+    Retrieve a list of Pages
+    This endpoint will return all Sites unless a query parameter is specificed
+    ---
+    tags:
+      - Pages
+    description: The Sites endpoint allows you to query Sites
+    definitions:
+      Site:
+        type: object
+        properties:
+            name:
+              type: string
+              description: Page name
+            meta:
+              type: string
+              description: Page meta
+            headers:
+              type: string
+              description: Page headers
+            site_id:
+              type: integer
+              description: Site ID
+    responses:
+      200:
+        description: An array of Sites
+        schema:
+          type: array
+          items:
+            schema:
+              $ref: '#/definitions/Page'
+    """
+    sess = obtain_session()
+    all_pages  = sess.query(Page).all()
+    pages_schema = PageSchema(many=True)
+    result = pages_schema.dump(all_pages)
     return make_response(jsonify(result), status.HTTP_200_OK)

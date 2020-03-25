@@ -72,7 +72,7 @@ CREATE TABLE pages (
         name varchar(2048),
         meta varchar(2048),
         headers varchar(2048),
-        site_id integer NOT NULL UNIQUE,
+        site_id integer,
         FOREIGN KEY(site_id) REFERENCES sites(id) ON DELETE CASCADE,
         UNIQUE(id)        
     );

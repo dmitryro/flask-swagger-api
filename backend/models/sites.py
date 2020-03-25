@@ -1,10 +1,11 @@
 from flask import Flask
+from flask_marshmallow import Marshmallow
+from flask_marshmallow.fields import fields
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import *
-from flask_marshmallow import Marshmallow
 
 app = Flask(__name__, instance_relative_config=True)
 Base = declarative_base()
@@ -12,7 +13,7 @@ ma = Marshmallow(app)
 
 class FormField(Base):
     """ Form Field """
-    id = Column(Integer, primary_key=True, unique=True)
+    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
     field_id = Column(String(256), unique=False)
     field_name = Column(String(256), unique=False)
     field_value = Column(String(2256), unique=False)
@@ -33,7 +34,7 @@ class FormField(Base):
 
 class Form(Base):
     """ Form """
-    id = Column(Integer, primary_key=True, unique=True)
+    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
     form_id = Column(String(256), unique=False)
     name = Column(String(256), unique=False)
     method = Column(String(256), unique=False)
@@ -56,31 +57,11 @@ class Form(Base):
                                      self.body)
 
 
-class Page(Base):
-    """ The site page """
-    id = Column(Integer, primary_key=True, unique=True)
-    name = Column(String(256), unique=False)
-    meta = Column(String(1256), unique=False)
-    headers = Column(String(1256), unique=False)
-    site_id = Column(Integer, ForeignKey("site.id"), unique=True)
-
-    __tablename__ = "page"
-
-
-    def __init__(self, name=None, meta=None, headers=None):
-        self.name = name
-        self.meta = meta
-        self.headers = headers
-
-    def __repr__(self):
-        return "<Page {} {} {}>".format(self.name,
-                                        self.meta,
-                                        self.header)
 
 class Site(Base):
     """ The site record to save in Postgres """
 
-    id = Column(Integer, primary_key=True, unique=True)
+    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
     host = Column(String(1256), unique=False)
     port = Column(Integer, primary_key=True)
     ip = Column(String(256), unique=True)
@@ -98,12 +79,37 @@ class Site(Base):
         self.date_last_crawled = date_last_crawled
 
     def __repr__(self):
-        return "<Site {} {} {} {}>".format(self.host,
-                                           self.port,
-                                           self.ip,
-                                           self.date_last_crawled)
+        return "<Site {} {} {} {} {}>".format(self.id,
+                                              self.host,
+                                              self.port,
+                                              self.ip,
+                                              self.date_last_crawled)
 
 
+
+class Page(Base):
+    """ The site page """
+    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
+    name = Column(String(256), unique=False)
+    meta = Column(String(1256), unique=False)
+    headers = Column(String(1256), unique=False)
+    site_id = Column(Integer, ForeignKey(Site.id), unique=True, nullable=False)
+
+    __tablename__ = "pages"
+
+
+    def __init__(self, name=None, meta=None, headers=None, site_id=None):
+        self.name = name
+        self.meta = meta
+        self.headers = headers
+        self.site_id = site_id
+
+    def __repr__(self):
+        return "<Page {} {} {} {} {}>".format(self.id,
+                                              self.name,
+                                              self.meta,
+                                              self.header,
+                                              self.site_id)
 
 class FormFieldSchema(ma.ModelSchema):
     """ Use this schema to serialize formfields """
@@ -125,6 +131,8 @@ class PageSchema(ma.ModelSchema):
 
 class SiteSchema(ma.ModelSchema):
     """ Use this schema to serialize sites """
+    pages = fields.Nested(PageSchema)
+
     class Meta:
         model = Site
 
