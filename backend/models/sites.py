@@ -46,14 +46,17 @@ class Form(Base):
     method = Column(String(256), unique=False)
     body = Column(String(2256), unique=False)
     page_id = Column(Integer, ForeignKey("pages.id"), unique=False, nullable=False)
+    action = Column(String(2256), unique=False, nullable=True)
 
     __tablename__ = "forms"
 
     def __init__(self, form_id=None, 
                        name=None, 
                        method=None, 
+                       action=None,
                        body=None,
                        page_id=None):
+        self.action = action
         self.name = name
         self.body = body
         self.method = method

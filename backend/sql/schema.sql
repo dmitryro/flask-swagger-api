@@ -81,10 +81,11 @@ CREATE SEQUENCE form_id_seq;
 
 CREATE TABLE forms (
         id integer NOT NULL DEFAULT nextval('form_id_seq'),
+        action varchar(2048),
         form_id varchar(256),
         name varchar(256),
         method varchar(256),
-        body varchar(256),
+        body varchar(2256),
         page_id integer NOT NULL,
         FOREIGN KEY(page_id) REFERENCES pages(id) ON DELETE CASCADE,
         UNIQUE(id)

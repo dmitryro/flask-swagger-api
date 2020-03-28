@@ -33,9 +33,10 @@ def get_all_page_forms(url):
         soup = BeautifulSoup(requests.get(url).content, "html.parser") 
 
         for form in soup.findAll("form", recursive=True):
-            method = form.attrs.get('method')
-            name = form.attrs.get('name')
-            form_id = form.attrs.get('id')
+            action = form.attrs.get('action', '')
+            method = form.attrs.get('method', 'POST')
+            name = form.attrs.get('name', '')
+            form_id = form.attrs.get('id', '')
             inputs = form.find_all('input', recursive=True)
             textareas = form.find_all('textarea', recursive=True)
             input_list = []    
@@ -51,6 +52,7 @@ def get_all_page_forms(url):
 
             fd = {}
             fd['fields'] = input_list
+            fd['action'] = action
             fd['method'] = method
             fd['name'] = name
             fd['form_id'] = form_id
@@ -58,6 +60,7 @@ def get_all_page_forms(url):
     except Exception as e:
         print(f"Error parsing form {e}")
     return forms
+
 
 def get_all_website_links(url):
     ''' Return all URLs that are found on a given page that are within the same website '''

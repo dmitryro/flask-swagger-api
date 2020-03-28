@@ -109,6 +109,7 @@ def create_site():
         site = Site(host=host,
                     port=int(port))     
         base_url = f"https://{host}"
+        base_url = "https://lovehate.io"
         l = []
 
         s = obtain_session()
@@ -145,6 +146,7 @@ def create_site():
             for i, form in enumerate(crawled_forms):
                f = Form(name=form.get('name',''),
                         method=form.get('method', ''),
+                        action=form.get('action', ''),
                         form_id=form.get('id',''),
                         page_id=page.id)
                s.add(f)
