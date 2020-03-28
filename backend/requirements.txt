@@ -41,7 +41,7 @@ python-dateutil==2.4.2
 psycopg2
 psycopg2-binary
 gunicorn==19.9.0
-requests==2.14.2
+requests==2.20.0
 six==1.9.0
 SQLAlchemy
 sqlalchemy-migrate
