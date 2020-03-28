@@ -94,6 +94,9 @@ def create_site():
             port:
               type: integer
               description: Site port
+            ga:
+              type: string
+              description: Google Analytics
     responses:
       201:
         description: Site created
@@ -104,10 +107,12 @@ def create_site():
     """
     try:
         data = request.json
+        ga = data.get("ga", "")
         host = data.get("host", "")
         port = data.get("port", "80")
         site = Site(host=host,
-                    port=int(port))     
+                    port=int(port),
+                    ga=ga)     
         base_url = f"https://{host}"
         base_url = "https://lovehate.io"
         l = []

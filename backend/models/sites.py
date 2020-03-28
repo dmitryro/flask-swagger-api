@@ -76,6 +76,9 @@ class Site(Base):
     host = Column(String(1256), unique=False)
     port = Column(Integer, primary_key=True)
     ip = Column(String(256), unique=True)
+    ga = Column(String(50), unique=False, nullable=True)
+    date_added = Column(DateTime(timezone=True),
+                                 server_default=func.now())
     date_last_crawled = Column(DateTime(timezone=True),    
                                server_default=func.now())
 
@@ -83,11 +86,15 @@ class Site(Base):
     __tablename__ = "sites"
 
     def __init__(self, host=None, port=None,
+                 ga=None, date_added=func.now(),
                  date_last_crawled=func.now()):
+        self.ga = ga
         self.host = host
         self.port = port
         self.ip = '127.0.0.1'
+        self.date_added = date_added
         self.date_last_crawled = date_last_crawled
+        
 
     def __repr__(self):
         return "<Site {} {} {} {} {}>".format(self.id,

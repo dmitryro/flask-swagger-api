@@ -58,8 +58,10 @@ CREATE SEQUENCE site_id_seq;
 CREATE TABLE sites (
         id integer NOT NULL DEFAULT nextval('site_id_seq'),
         host varchar(2048),
+        ga varchar(50),
         port integer,
         ip varchar(256),
+        date_added date NOT NULL,
         date_last_crawled date NOT NULL,
         UNIQUE(id)
    );
