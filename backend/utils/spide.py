@@ -56,7 +56,7 @@ def get_all_page_forms(url):
             fd['form_id'] = form_id
             forms.append(fd)
     except Exception as e:
-        print(f"ERROR PARSING FORM {e}")
+        print(f"Error parsing form {e}")
     return forms
 
 def get_all_website_links(url):
