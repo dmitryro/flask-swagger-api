@@ -16,16 +16,21 @@ class FormField(Base):
     id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
     field_id = Column(String(256), unique=False)
     field_name = Column(String(256), unique=False)
+    field_type = Column(String(256), unique=False)
+    field_placeholder = Column(String(256), unique=False)
     field_value = Column(String(2256), unique=False)
     form_id = Column(Integer, ForeignKey("forms.id"), unique=False, nullable=False)
     
     __tablename__ = "formfields"
 
-    def __init__(self, field_id=None, field_name=None, field_value=None, form_id=None):
+    def __init__(self, field_id=None, field_name=None, field_value=None, 
+                form_id=None, field_type=None, field_placeholder=None):
         self.field_id = field_id 
         self.field_name = field_name
         self.field_value = field_value
         self.form_id = form_id
+        self.field_type = field_type
+        self.field_placeholder = field_placeholder
 
     def __repr__(self):
         return "<FormField {} {} {}>".format(self.field_id,

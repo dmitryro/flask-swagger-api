@@ -97,6 +97,8 @@ CREATE TABLE formfields (
         field_id varchar(256),
         field_name varchar(256),
         field_value varchar(256),
+        field_tyle varchar(256),
+        field_placeholder varchar(256),
         form_id integer NOT NULL,
         FOREIGN KEY(form_id) REFERENCES forms(id) ON DELETE CASCADE,
         UNIQUE(id)

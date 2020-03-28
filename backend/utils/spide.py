@@ -30,9 +30,6 @@ def get_all_page_forms(url):
 
     try:
         domain_name = urlparse(url).netloc
-
-        print(f"Domain name was {domain_name} and the url was {url}")
-
         soup = BeautifulSoup(requests.get(url).content, "html.parser") 
 
         for form in soup.findAll("form", recursive=True):
@@ -45,10 +42,12 @@ def get_all_page_forms(url):
 
             for inp in inputs:
                 input_dict = {}
-                input_dict['id'] = inp.attrs.get('id')
-                input_dict['name'] = inp.attrs.get('name')
+                input_dict['id'] = inp.attrs.get('id','')
+                input_dict['name'] = inp.attrs.get('name','')
+                input_dict['type'] = inp.attrs.get('type','')
+                input_dict['placeholder'] = inp.attrs.get('placeholder', '')
+                input_dict['value'] = inp.attrs.get('value', '')
                 input_list.append(input_dict)
-                print(f"--------------> Found input in form name {name} id {form_id} with method {method} input {inp.attrs.get('name')} id {inp.attrs.get('id')}")            
 
             fd = {}
             fd['fields'] = input_list

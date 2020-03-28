@@ -109,6 +109,7 @@ def create_site():
         site = Site(host=host,
                     port=int(port))     
         base_url = f"https://{host}"
+        l = []
 
         s = obtain_session()
         s.add(site)
@@ -134,24 +135,30 @@ def create_site():
 
 
         stored_forms = {}       
+        stored_fields = {}
 
         for page in pages:
             link = f"{base_url}{page.name}"
             crawled_forms = get_all_page_forms(link)
             forms = []
 
-            for form in crawled_forms:
+            for i, form in enumerate(crawled_forms):
                f = Form(name=form.get('name',''),
                         method=form.get('method', ''),
                         form_id=form.get('id',''),
-                        page_id=p.id)
+                        page_id=page.id)
                s.add(f)
                forms.append(f)
-
+               form_id = form.get('form_id')
+               stored_fields[f'fields_{page.id}_{i}'] = form['fields']
+                   
+           
             s.commit()
             s.flush()
             forms_result = form_schema.dump(forms)
             stored_forms[f'forms_{page.id}'] = forms_result
+            stored_forms[f'forms_{page.id}_crawled'] = crawled_forms
+
 
 
         pages_result = page_schema.dump(pages)
@@ -160,6 +167,14 @@ def create_site():
         for page in pages_result:
             page_id = page.get('id')
             forms = stored_forms[f'forms_{page_id}']
+            crawled_forms = stored_forms[f'forms_{page_id}_crawled']
+
+            for i, form in enumerate(forms):
+                form_id = form.get('id')
+                fields = stored_fields[f'fields_{page_id}_{i}']
+                
+                form['fields'] = fields
+ 
             page['forms'] = forms
 
         result = site_schema.dump(site)
