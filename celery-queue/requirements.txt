@@ -1,9 +1,12 @@
-amqp
+bs4
+colorama
+requests
 Babel
 billiard
-celery
+celery[redis]
 flower
 kombu
 pytz
 redis
+six
 vine

@@ -98,7 +98,7 @@ def get_all_website_links(url):
 # number of urlse visited so far will be counted
 total_urls_visited = 0
 
-def crawl(url, max_urls=50, site_links=[]):
+def crawl(url, max_urls=20, site_links=[]):
     '''
     Crawl a web page and extract all the links.
     Store the links in external_urls and internal_urls global variables

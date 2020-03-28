@@ -85,7 +85,7 @@ CREATE TABLE forms (
         name varchar(256),
         method varchar(256),
         body varchar(256),
-        page_id integer NOT NULL UNIQUE,
+        page_id integer NOT NULL,
         FOREIGN KEY(page_id) REFERENCES pages(id) ON DELETE CASCADE,
         UNIQUE(id)
     );
@@ -97,7 +97,7 @@ CREATE TABLE formfields (
         field_id varchar(256),
         field_name varchar(256),
         field_value varchar(256),
-        form_id integer NOT NULL UNIQUE,
+        form_id integer NOT NULL,
         FOREIGN KEY(form_id) REFERENCES forms(id) ON DELETE CASCADE,
         UNIQUE(id)
     );

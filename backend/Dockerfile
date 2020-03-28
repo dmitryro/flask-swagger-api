@@ -30,4 +30,4 @@ EXPOSE 5000
 RUN pip install gunicorn
 
 # run the app server
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "3", "app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "app:app", "-k", "gevent", "--log-level", "debug"]

@@ -17,14 +17,15 @@ class FormField(Base):
     field_id = Column(String(256), unique=False)
     field_name = Column(String(256), unique=False)
     field_value = Column(String(2256), unique=False)
-    form_id = Column(Integer, ForeignKey("form.id"), unique=True)
+    form_id = Column(Integer, ForeignKey("forms.id"), unique=False, nullable=False)
     
-    __tablename__ = "formfield"
+    __tablename__ = "formfields"
 
-    def __init__(self, field_id=None, field_name=None, field_value=None):
+    def __init__(self, field_id=None, field_name=None, field_value=None, form_id=None):
         self.field_id = field_id 
         self.field_name = field_name
         self.field_value = field_value
+        self.form_id = form_id
 
     def __repr__(self):
         return "<FormField {} {} {}>".format(self.field_id,
@@ -39,18 +40,20 @@ class Form(Base):
     name = Column(String(256), unique=False)
     method = Column(String(256), unique=False)
     body = Column(String(2256), unique=False)
-    page_id = Column(Integer, ForeignKey("page.id"), unique=True)
+    page_id = Column(Integer, ForeignKey("pages.id"), unique=False, nullable=False)
 
-    __tablename__ = "form"
+    __tablename__ = "forms"
 
     def __init__(self, form_id=None, 
                        name=None, 
                        method=None, 
-                       body=None):
+                       body=None,
+                       page_id=None):
         self.name = name
         self.body = body
         self.method = method
         self.form_id = form_id
+        self.page_id = page_id
 
     def __repr__(self):
         return "<Form {} {}>".format(self.name,
@@ -108,7 +111,7 @@ class Page(Base):
         return "<Page {} {} {} {} {}>".format(self.id,
                                               self.name,
                                               self.meta,
-                                              self.header,
+                                              self.headers,
                                               self.site_id)
 
 class FormFieldSchema(ma.ModelSchema):
@@ -119,12 +122,16 @@ class FormFieldSchema(ma.ModelSchema):
 
 class FormSchema(ma.ModelSchema):
     """ Use this schema to serialize forms """
+    fields = fields.Nested(FormFieldSchema)
+
     class Meta:
         model = Form
 
 
 class PageSchema(ma.ModelSchema):
     """ Use this schema to serialize pages """
+    forms = fields.Nested(FormSchema)
+
     class Meta:
         model = Page
 

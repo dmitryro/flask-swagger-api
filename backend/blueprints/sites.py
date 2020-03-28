@@ -21,7 +21,7 @@ from models.sites import Site, SiteSchema
 from models.sites import Page, PageSchema
 from models.sites import Form, FormSchema
 from models.sites import FormField, FormFieldSchema
-from utils.spide import crawl, internal_urls 
+from utils.spide import crawl, internal_urls, get_all_page_forms 
 
 sites_blueprint = Blueprint('sites', __name__, template_folder='templates')
 
@@ -102,43 +102,72 @@ def create_site():
       400:
         description: Bad Request (the posted data was not valid)
     """
-    l = []
     try:
         data = request.json
         host = data.get("host", "")
         port = data.get("port", "80")
         site = Site(host=host,
                     port=int(port))     
+        base_url = f"https://{host}"
 
         s = obtain_session()
         s.add(site)
         s.commit()
         s.flush()
 
-
-        site_links = crawl("https://lovehate.io", max_urls=20)
+        site_links = crawl(base_url, max_urls=20)
         crawled_pages = list(site_links)
 
         page_schema = PageSchema(many=True)
         site_schema = SiteSchema(many=False)
+        form_schema = FormSchema(many=True)
+
         pages = []
 
         for page in crawled_pages:
-            p = Page(name=page, site_id=site.id, headers='')
+            p = Page(name=page, site_id=site.id)
             s.add(p)
             pages.append(p)            
 
         s.commit()
         s.flush()
-        
+
+
+        stored_forms = {}       
+
+        for page in pages:
+            link = f"{base_url}{page.name}"
+            crawled_forms = get_all_page_forms(link)
+            forms = []
+
+            for form in crawled_forms:
+               f = Form(name=form.get('name',''),
+                        method=form.get('method', ''),
+                        form_id=form.get('id',''),
+                        page_id=p.id)
+               s.add(f)
+               forms.append(f)
+
+            s.commit()
+            s.flush()
+            forms_result = form_schema.dump(forms)
+            stored_forms[f'forms_{page.id}'] = forms_result
+
+
         pages_result = page_schema.dump(pages)
+
+
+        for page in pages_result:
+            page_id = page.get('id')
+            forms = stored_forms[f'forms_{page_id}']
+            page['forms'] = forms
+
         result = site_schema.dump(site)
         result['pages'] = pages_result
         logging.info(f"Saved new site {host} {port}")
         return make_response(jsonify(result),  status.HTTP_201_CREATED)
     except Exception as e:
-        print(f"-------------> Failed saving site - {e}")
-        logging.error(f"Failed saving site - {e}")
+        print(f"Failed saving site - {e}")
 
     return make_response(jsonify(l), status.HTTP_201_CREATED)
 
@@ -173,7 +202,10 @@ def list_sites():
     sess = obtain_session()
     all_sites  = sess.query(Site).all()
     sites_schema = SiteSchema(many=True)
+
+    print(f"ALL SITES {all_sites}")
     result = sites_schema.dump(all_sites)
+    print(f"ALL SITES RESULT {result}")
     return make_response(jsonify(result), status.HTTP_200_OK)
 
 

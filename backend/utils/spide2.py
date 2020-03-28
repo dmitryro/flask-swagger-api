@@ -25,9 +25,8 @@ def is_valid(url):
 
 def get_all_page_forms(url):
     ''' Return all URLs that are found on a given page that are within the same website '''
+    urls = set()
     # domain name of the URL without the protocol
-    forms = []
-
     try:
         domain_name = urlparse(url).netloc
 
@@ -35,30 +34,21 @@ def get_all_page_forms(url):
 
         soup = BeautifulSoup(requests.get(url).content, "html.parser") 
 
-        for form in soup.findAll("form", recursive=True):
+        for form in soup.findAll("form"):
             method = form.attrs.get('method')
             name = form.attrs.get('name')
             form_id = form.attrs.get('id')
-            inputs = form.find_all('input', recursive=True)
-            textareas = form.find_all('textarea', recursive=True)
-            input_list = []    
+            inputs = form.find_all('input', recursive=False)
+            textareas = form.find_all('textarea', recursive=False)
 
             for inp in inputs:
-                input_dict = {}
-                input_dict['id'] = inp.attrs.get('id')
-                input_dict['name'] = inp.attrs.get('name')
-                input_list.append(input_dict)
                 print(f"--------------> Found input in form name {name} id {form_id} with method {method} input {inp.attrs.get('name')} id {inp.attrs.get('id')}")            
+            for inp in textareas:
+                print(f"--------------> Found textarea in form name {name} id {form_id} with method {method} input {inp.attrs.get('name')} id {inp.attrs.get('id')}")
 
-            fd = {}
-            fd['fields'] = input_list
-            fd['method'] = method
-            fd['name'] = name
-            fd['form_id'] = form_id
-            forms.append(fd)
     except Exception as e:
         print(f"ERROR PARSING FORM {e}")
-    return forms
+
 
 def get_all_website_links(url):
     ''' Return all URLs that are found on a given page that are within the same website '''
@@ -115,7 +105,7 @@ def crawl(url, max_urls=50, site_links=[]):
 
 
 if __name__ == "__main__":
-    base = "https://lovehate.io"
+    base = "http://3dact.com"
     site_links = crawl(base, max_urls=20)
     print("[+] Total External links:", len(external_urls))
     print("[+] Total Internal links:", len(internal_urls))
@@ -124,6 +114,4 @@ if __name__ == "__main__":
     for url in site_links:
          if '/' in url:
              link = f"{base}{url}"
-             forms = get_all_page_forms(link) 
-             print(f"Forms found ===> {forms}")
-
+             get_all_page_forms(link) 
