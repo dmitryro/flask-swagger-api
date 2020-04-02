@@ -1,6 +1,10 @@
 import React from 'react'
 import { observer } from 'mobx-react'
-import { Modal, Form, Input, Select } from 'antd'
+import { Form } from '@ant-design/compatible'
+import { Modal, Input, Select } from 'antd'
+import 'antd/es/grid/style/css' 
+import { Mention } from '@ant-design/compatible'
+import '@ant-design/compatible/assets/index.css'
 import { FormComponentProps } from 'antd/lib/form'
 
 import useRootStore from '@store/useRootStore'
@@ -38,23 +42,31 @@ function SiteModal({ visible, onCancel, site, form }: IProps) {
     }
 
     function submit(e?: React.FormEvent<any>) {
+        alert("SITE STORE "+siteStore);
         if (e) {
             e.preventDefault()
         }
         form.validateFields(
             async (err, values): Promise<any> => {
                 if (!err) {
+                    alert("THERE WERE NO ERRORS");
                     toggleLoading()
                     try {
                         if (typeIsAdd) {
-                            await siteStore.createSite(values)
-                            siteStore.changePageIndex(1)
+                            if (siteStore!==undefined) {
+                                alert("SITE IS THERE"+JSON.stringify(siteStore));
+                                //await siteStore.createSite(values)
+                                siteStore.changePageIndex(1)
+                            }
                         } else {
+                            alert("ALL GOOD - SITE ID "+site._id);
                             await siteStore.modifySite({ ...values, _id: site._id })
                             siteStore.getSites()
                         }
                         onCancel()
-                    } catch (err) {}
+                    } catch (err) {
+                        alert("THERE IS AN ERROR "+err);
+                    }
                     toggleLoading()
                 }
             }
@@ -71,13 +83,20 @@ function SiteModal({ visible, onCancel, site, form }: IProps) {
             okButtonProps={{ loading }}
         >
             <Form onSubmit={submit}>
-                <FormItem {...formItemLayout} label="name">
-                    {getFieldDecorator('name', {
-                        initialValue: site ? site.name : '',
+                <FormItem {...formItemLayout} label="address">
+                    {getFieldDecorator('address', {
+                        initialValue: site ? site.address : '',
                         rules: [{ required: true }]
                     })(<Input />)}
                 </FormItem>
-                    
+
+                <FormItem {...formItemLayout} label="port">
+                    {getFieldDecorator('port', {
+                        initialValue: site ? site.port : '',
+                        rules: [{ required: false }]
+                    })(<Input />)}
+                </FormItem>
+
                 <FormItem {...formItemLayout} label="ga">
                         {getFieldDecorator('ga', {
                             rules: [{ required: true }]
@@ -87,5 +106,4 @@ function SiteModal({ visible, onCancel, site, form }: IProps) {
         </Modal>
     )
 }
-
 export default Form.create<IProps>()(observer(SiteModal))

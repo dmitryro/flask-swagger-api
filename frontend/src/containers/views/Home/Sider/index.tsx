@@ -2,6 +2,7 @@ import React from 'react'
 import classnames from 'classnames'
 import { observer } from 'mobx-react'
 import { Layout, Icon, Switch } from 'antd'
+import { Icon as LegacyIcon } from '@ant-design/compatible';
 
 import styles from './index.scss'
 import useRootStore from '@store/useRootStore'
@@ -30,7 +31,7 @@ function Sider() {
             collapsed={sideBarCollapsed}
         >
             <div className={classnames(styles.logoBox, sideBarTheme === 'dark' && styles.dark)}>
-                <Icon type="ant-design" />
+                 <LegacyIcon type="ant-design" />
             </div>
             <SiderMenu />
             {!sideBarCollapsed && ChangeTheme}

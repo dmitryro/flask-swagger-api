@@ -10,10 +10,9 @@ RUN \
   apk update                     && \
   apk add bash                   && \
   npm install -G yarn typescript && \
-  npx -p @ant-design/codemod-v4 antd4-codemod src && \
-  npm i -g @ant-design/codemod-v4 && \
+  npx -p @ant-design/codemod-v4 antd4-codemod ./src --force && \
   yarn global add @ant-design/codemod-v4 && \
-  antd4-codemod src && \
+  antd4-codemod ./src --force && \ 
   yarn 
 
 EXPOSE 8080

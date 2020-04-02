@@ -1,13 +1,14 @@
 import React from 'react'
 import { observer } from 'mobx-react'
 import { computed } from 'mobx'
-import { Menu, Icon } from 'antd'
+import { Menu } from 'antd'
 import { pathToRegexp } from 'path-to-regexp'
 
 import styles from './index.scss'
 import { RootConsumer } from '@shared/App/Provider'
 import { arrayToTree, queryArray } from '@utils/index'
 import menu, { IMenu, IMenuInTree } from './../menu'
+import { Icon as LegacyIcon } from '@ant-design/compatible';
 
 const { SubMenu } = Menu
 
@@ -110,7 +111,7 @@ class SiderMenu extends React.Component<IProps> {
                         key={String(item.id)}
                         title={
                             <span>
-                                {item.icon && <Icon type={item.icon} />}
+                                {item.icon && <LegacyIcon type={item.icon} />}
                                 <span>{item.title}</span>
                             </span>
                         }
@@ -121,7 +122,7 @@ class SiderMenu extends React.Component<IProps> {
             }
             return (
                 <Menu.Item key={String(item.id)}>
-                    {item.icon && <Icon type={item.icon} />}
+                    {item.icon && <LegacyIcon type={item.icon} />}
                     <span>{item.title}</span>
                 </Menu.Item>
             )

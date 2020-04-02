@@ -30,7 +30,11 @@
     "author": "jackple",
     "license": "MIT",
     "dependencies": {
+        "@loadable/component": "^5.11.0",
+        "@ant-design/compatible": "^1.0.2",
         "@ant-design/codemod-v4": "^1.1.0",
+        "@ant-design/icons": "^4.0.5",
+        "ant-design-pro": "^2.3.2",
         "@loadable/component": "^5.11.0",
         "antd": "^4.0.4",
         "@ant-design/icons": "^4.0.0",
@@ -51,7 +55,10 @@
         "react-router-dom": "5.1.2",
         "react-virtualized": "9.21.2",
         "socket.io-client": "2.3.0",
-        "socketio-wildcard": "^2.0.0"
+        "socketio-wildcard": "^2.0.0",
+        "umi": "^3.0.14",
+        "umi-request": "^1.0.8",
+        "use-merge-value": "^1.0.1"
     },
     "devDependencies": {
         "@babel/core": "7.7.2",

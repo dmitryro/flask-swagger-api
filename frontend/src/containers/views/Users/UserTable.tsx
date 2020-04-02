@@ -58,7 +58,7 @@ function UserTable({ scrollY }: IProps) {
                             <Divider type="vertical" />
                             <Popconfirm
                                 placement="top"
-                                title="确认删除?"
+                                title="Delete?"
                                 onConfirm={() => userStore.deleteUser(record._id)}
                                 okText="Yes"
                                 cancelText="No"

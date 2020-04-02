@@ -1,6 +1,7 @@
 import React from 'react'
 import { observer } from 'mobx-react'
-import { Modal, Form, Input, Select } from 'antd'
+import { Form } from '@ant-design/compatible' 
+import { Modal, Input, Select } from 'antd'
 import { FormComponentProps } from 'antd/lib/form'
 
 import useRootStore from '@store/useRootStore'

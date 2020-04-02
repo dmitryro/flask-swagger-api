@@ -6,6 +6,9 @@ import styles from './index.scss'
 import { useOnMount } from '@utils/hooks'
 import useRootStore from '@store/useRootStore'
 import SiteModal from './SiteModal'
+import 'antd/es/grid/style/css';
+import { Mention } from '@ant-design/compatible';
+import '@ant-design/compatible/assets/index.css';
 
 interface IProps {
     scrollY: number
@@ -43,9 +46,10 @@ function SiteTable({ scrollY }: IProps) {
                 }}
                 onChange={siteStore.handleTableChange}
             >
-                <Table.Column<ISiteStore.ISite> key="account" title="Account" dataIndex="account" width={200} />
-                <Table.Column<ISiteStore.ISite> key="category" title="Category" dataIndex="category" width={100} />
-                <Table.Column<ISiteStore.ISite> key="createdAt" title="CreatedAt" dataIndex="createdAt" width={200} />
+                <Table.Column<ISiteStore.ISite> key="address" title="Address" dataIndex="address" width={200} />
+                <Table.Column<ISiteStore.ISite> key="port" title="Port" dataIndex="port" width={40} />
+                <Table.Column<ISiteStore.ISite> key="ga" title="Google Analytics" dataIndex="port" width={160} />  
+                <Table.Column<ISiteStore.ISite> key="addedAt" title="Added At" dataIndex="addedAt" width={200} />
                 <Table.Column<ISiteStore.ISite>
                     key="action"
                     title="Action"
@@ -58,7 +62,7 @@ function SiteTable({ scrollY }: IProps) {
                             <Divider type="vertical" />
                             <Popconfirm
                                 placement="top"
-                                title="确认删除?"
+                                title="Add?"
                                 onConfirm={() => siteStore.deleteSite(record._id)}
                                 okText="Yes"
                                 cancelText="No"
