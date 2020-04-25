@@ -28,6 +28,7 @@ sites_blueprint = Blueprint('sites', __name__, template_folder='templates')
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
+
 def obtain_session():
     """ Get SQLAlchemy session """
     engine = create_engine('postgresql+psycopg2://postgres:postgres@postgres:5432/postgres')
@@ -35,6 +36,7 @@ def obtain_session():
     # Bind the sessionmaker to engine
     session.configure(bind=engine)
     return session()
+
 
 @sites_blueprint.route("/sites/<int:id>", methods=['GET'])
 def get_sites(id):
@@ -60,11 +62,20 @@ def get_sites(id):
       404:
         description: Site not found
     """
-    sess = obtain_session()
-    site = sess.query(Site).get(id)
-    site_schema = SiteSchema(many=False)
-    result = site_schema.dump(site)
+    try:
+        sess = obtain_session()
+        site = sess.query(Site).filter(Site.id==id).first()
+        pages = sess.query(Page).filter(Page.site_id==site.id)
+        page_schema = PageSchema(many=True)
+        site_schema = SiteSchema(many=False)
+        pages_result = page_schema.dump(pages)
+        result = site_schema.dump(site)
+        result['pages'] = pages_result
+    except Exception as e:
+        result = {"error": str(e)}
+
     return make_response(jsonify(result), status.HTTP_200_OK)
+
 
 
 @sites_blueprint.route("/sites", methods=['POST'])
@@ -116,12 +127,11 @@ def create_site():
         base_url = f"https://{host}"
         base_url = "https://lovehate.io"
         l = []
-
+       
         s = obtain_session()
         s.add(site)
         s.commit()
         s.flush()
-
         site_links = crawl(base_url, max_urls=20)
         crawled_pages = list(site_links)
 
@@ -193,6 +203,7 @@ def create_site():
 
     return make_response(jsonify(l), status.HTTP_201_CREATED)
 
+
 @sites_blueprint.route("/sites", methods=['GET'])
 def list_sites():
     """
@@ -224,10 +235,7 @@ def list_sites():
     sess = obtain_session()
     all_sites  = sess.query(Site).all()
     sites_schema = SiteSchema(many=True)
-
-    print(f"ALL SITES {all_sites}")
     result = sites_schema.dump(all_sites)
-    print(f"ALL SITES RESULT {result}")
     return make_response(jsonify(result), status.HTTP_200_OK)
 
 
@@ -256,9 +264,9 @@ def get_pages(site_id):
         description: Site not found
     """
     sess = obtain_session()
-    page = sess.query(Page).filter(site_id==site_id)
+    pages = sess.query(Page).filter_by(site_id=site_id)
     page_schema = PageSchema(many=True)
-    result = page_schema.dump(page)
+    result = page_schema.dump(pages)
     return make_response(jsonify(result), status.HTTP_200_OK)
 
 
@@ -300,4 +308,112 @@ def list_pages():
     all_pages  = sess.query(Page).all()
     pages_schema = PageSchema(many=True)
     result = pages_schema.dump(all_pages)
+    return make_response(jsonify(result), status.HTTP_200_OK)
+
+
+@sites_blueprint.route("/sites/<int:id>", methods=['DELETE'])
+def delete_site(id):
+    """
+    Delete a Site
+    This endpoint will delete a Site based the id specified in the path
+    ---
+    tags:
+      - Sites
+    description: Deletes a Site from the database
+    parameters:
+      - name: id
+        in: path
+        description: ID of site to delete
+        type: integer
+        required: true
+    responses:
+      204:
+        description: Site deleted
+    """
+    sess = obtain_session()
+    site = sess.query(Site).get(id)
+
+    if site:
+        sess.delete(site)
+        sess.commit()
+
+    result = {"result": "success"}
+    return make_response(jsonify(result), status.HTTP_204_NO_CONTENT)
+
+
+@sites_blueprint.route("/forms", methods=['GET'])
+def list_forms():
+    """
+    Retrieve a list of Forms
+    This endpoint will return all Sites unless a query parameter is specificed
+    ---
+    tags:
+      - Forms
+    description: The Sites endpoint allows you to query Sites
+    definitions:
+      Form:
+        type: object
+        properties:
+            id:
+              type: integer
+              description: Form id
+            action:
+              type: string
+              desctiption: Form action
+            method:
+              type: string
+              description: Method (POST/GET/PUT)
+            form_id:
+              type: string
+              description: Form text ID
+            name:
+              type: string
+              description: Form name
+            page_id:
+              type: integer
+              description: Page ID
+    responses:
+      200:
+        description: An array of Sites
+        schema:
+          type: array
+          items:
+            schema:
+              $ref: '#/definitions/Form'
+    """
+    sess = obtain_session()
+    all_forms = sess.query(Form).all()
+    forms_schema = FormSchema(many=True)
+    result = forms_schema.dump(all_forms)
+    return make_response(jsonify(result), status.HTTP_200_OK)
+
+
+@sites_blueprint.route("/forms/<int:page_id>", methods=['GET'])
+def get_forms(page_id):
+    """
+    Retrieve a single Form by Page ID
+    This endpoint will return a Form based on it's page_id
+    ---
+    tags:
+      - Forms
+    produces:
+      - application/json
+    parameters:
+      - name: page_id
+        in: path
+        description: ID of site to retrieve
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Form returned
+        schema:
+          $ref: '#/definitions/Form'
+      404:
+        description: Page not found
+    """
+    sess = obtain_session()
+    forms = sess.query(Form).filter_by(page_id=page_id)
+    form_schema = FormSchema(many=True)
+    result = form_schema.dump(forms)
     return make_response(jsonify(result), status.HTTP_200_OK)

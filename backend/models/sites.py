@@ -13,7 +13,7 @@ ma = Marshmallow(app)
 
 class FormField(Base):
     """ Form Field """
-    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     field_id = Column(String(256), unique=False)
     field_name = Column(String(256), unique=False)
     field_type = Column(String(256), unique=False)
@@ -40,7 +40,7 @@ class FormField(Base):
 
 class Form(Base):
     """ Form """
-    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     form_id = Column(String(256), unique=False)
     name = Column(String(256), unique=False)
     method = Column(String(256), unique=False)
@@ -72,7 +72,7 @@ class Form(Base):
 class Site(Base):
     """ The site record to save in Postgres """
 
-    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     host = Column(String(1256), unique=False)
     port = Column(Integer, primary_key=True)
     ip = Column(String(256), unique=True)
@@ -107,7 +107,7 @@ class Site(Base):
 
 class Page(Base):
     """ The site page """
-    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(256), unique=False)
     meta = Column(String(1256), unique=False)
     headers = Column(String(1256), unique=False)
@@ -132,7 +132,8 @@ class Page(Base):
 class FormFieldSchema(ma.ModelSchema):
     """ Use this schema to serialize formfields """
     class Meta:
-        model = FormField
+        fields = ("id", "field_id", "field_nname", "field_type", 
+                  "field_placeholder", "field_value", "form_id",)
 
 
 class FormSchema(ma.ModelSchema):
@@ -140,7 +141,7 @@ class FormSchema(ma.ModelSchema):
     fields = fields.Nested(FormFieldSchema)
 
     class Meta:
-        model = Form
+        fields = ("id", "form_id", "name", "method", "body", "page_id", "action",)
 
 
 class PageSchema(ma.ModelSchema):
@@ -148,7 +149,7 @@ class PageSchema(ma.ModelSchema):
     forms = fields.Nested(FormSchema)
 
     class Meta:
-        model = Page
+        fields = ("id", "name", "meat", "headers", "site_id",)
 
 
 class SiteSchema(ma.ModelSchema):

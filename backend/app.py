@@ -16,6 +16,7 @@ import os
 from flask import Flask, jsonify, request, url_for, make_response
 from flasgger import Swagger
 from flask_api import status    # HTTP Status Codes
+from flask_cors import CORS
 from werkzeug.exceptions import NotFound
 from blueprints.users import users_blueprint
 from blueprints.contacts import contacts_blueprint
@@ -52,6 +53,7 @@ def create_app():
 app = create_app()
 # Initialize Swagger after configuring it
 Swagger(app)
+CORS(app)
 
 ######################################################################
 # ERROR Handling

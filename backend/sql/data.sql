@@ -1,3 +1,11 @@
+INSERT INTO users (username, password, category, email, first_name, last_name, is_staff, is_active, is_superuser, last_login, date_joined) VALUES ('Machiavelli', 'nu45edi1', 'admin
+', 'dmitryro@gmail.com', 'Nicollo', 'Machiavelli', TRUE, TRUE, TRUE, NOW(), NOW());
+INSERT INTO users (username, password, category, email, first_name, last_name, is_staff, is_active, is_superuser, last_login, date_joined) VALUES ('Dmitryro', 'nu45edi1', 'admin
+', 'dmitryro1@gmail.com', 'Dmitry', 'Roitman', TRUE, TRUE, TRUE, NOW(), NOW());
+
+INSERT INTO sites(host, port, ip, ga, date_added, date_last_crawled) VALUES ('3dact.com', '8080', '127.0.0.1', 'UI-201031', NOW(), NOW());
+INSERT INTO sites(host, port, ip, ga, date_added, date_last_crawled) VALUES ('lovehate.io', '8080', '127.0.0.1', 'UI-201032', NOW(), NOW());
+
 INSERT INTO states (code, name) VALUES ('AL', 'Alabama');
 INSERT INTO states (code, name) VALUES ('AK', 'Alaska');
 INSERT INTO states (code, name) VALUES ('AZ', 'Arizona');
@@ -50,7 +58,6 @@ INSERT INTO states (code, name) VALUES ('WA', 'Washington');
 INSERT INTO states (code, name) VALUES ('WV', 'West Virginia');
 INSERT INTO states (code, name) VALUES ('WI', 'Wisconsin');
 INSERT INTO states (code, name) VALUES ('WY', 'Wyoming');
-INSERT INTO states (code, name) VALUES ('PR', 'Puerto Rico');
 INSERT INTO states (code, name) VALUES ('GU', 'Guam');
 INSERT INTO states (code, name) VALUES ('AB', 'Alberta');
 INSERT INTO states (code, name) VALUES ('BC', 'British Columbia');

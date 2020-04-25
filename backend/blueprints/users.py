@@ -73,17 +73,6 @@ def list_users():
     tags:
       - Users
     description: The Users endpoint allows you to query Users
-    parameters:
-      - name: first_name
-        in: query
-        description: first name of the user
-        required: true
-        type: string
-      - name: last_name
-        in: query
-        description: last name of the user
-        required: true
-        type: string
     definitions:
       User:
         type: object
@@ -146,7 +135,8 @@ def delete_user(id):
         sess.delete(user)
         sess.commit()
 
-    return make_response('', status.HTTP_204_NO_CONTENT)
+    result = {"result": "success"}
+    return make_response(jsonify(result), status.HTTP_204_NO_CONTENT)
 
 
 @users_blueprint.route("/users/<int:id>", methods=['PUT'])
@@ -239,10 +229,8 @@ def create_user():
         schema:
           id: data
           required:
-            - first_name
-            - last_name
-            - username
-            - email
+            - account
+            - category
             - password
           properties:
             first_name:
@@ -268,17 +256,19 @@ def create_user():
       400:
         description: Bad Request (the posted data was not valid)
     """
-    data = request.json
-    first_name = data.get("first_name", "")
-    last_name = data.get("last_name", "")
-    username = data.get("username", "")
-    password = data.get("password", "")
-    email = data.get("email", "")
-
     try:
+        data = request.json
+        first_name = data.get("first_name", "")
+        last_name = data.get("last_name", "")
+        username = data.get("account", "")
+        password = data.get("password", "")
+        category = data.get("category", "user")
+        email = data.get("email", "")
+
         user = User(first_name=first_name,
                     last_name=last_name,
                     email=email,
+                    category=category,
                     username=username,
                     password=password,
                     is_active=True,
@@ -290,6 +280,7 @@ def create_user():
         s.flush()
         logging.info(f"Saved new user {first_name} {last_name}")
     except Exception as e:
+        print(f"Failed creating new user {e}")
         logging.error(f"Failed saving user - {e}")
 
     sess = obtain_session()

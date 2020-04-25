@@ -38,6 +38,7 @@ class User(Base):
     last_name = Column(String(256), unique=False)
     username = Column(String(256), unique=True)
     email = Column(String(256), unique=True)
+    category = Column(String(40), unique=False)
     password = Column(String(256), unique=False)
     bio = Column(String(2048), unique=False)
     is_active = Column(Boolean, unique=False)
@@ -53,12 +54,14 @@ class User(Base):
     def __init__(self, first_name=None, last_name=None,
                  username=None, email=None, bio=None, 
                  password=None,
+                 category=None,
                  is_staff=False,
                  is_active=False,
                  is_superuser=False,
                  date_born=func.now(),
                  last_login=func.now(),
                  date_joined=func.now()):
+        self.category = category
         self.password = password
         self.email = email
         self.is_superuser = is_superuser

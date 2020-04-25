@@ -17,7 +17,7 @@ ENV PYTHONUNBUFFERED 1
 
 # install psycopg2 dependencies
 RUN apk update \
-    && apk add postgresql-dev gcc python3-dev musl-dev
+    && apk add --no-cache postgresql-dev gcc python3-dev musl-dev openssl-dev libffi-dev build-base
 
 # install dependencies
 RUN pip install --upgrade pip
@@ -30,4 +30,4 @@ EXPOSE 5000
 RUN pip install gunicorn
 
 # run the app server
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "app:app", "-k", "gevent", "--log-level", "debug"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "5", "app:app", "--log-level", "debug", "--timeout", "120"]

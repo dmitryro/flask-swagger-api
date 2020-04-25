@@ -20,6 +20,7 @@ CREATE SEQUENCE user_id_seq;
 CREATE TABLE users (
         id integer NOT NULL DEFAULT nextval('user_id_seq'),
         username varchar(30) NOT NULL UNIQUE,
+        category varchar(30),
         first_name varchar(30) NOT NULL,
         last_name varchar(30) NOT NULL,
         email varchar(75) NOT NULL,
@@ -127,4 +128,3 @@ OWNED BY states.id;
 
 ALTER SEQUENCE contact_id_seq
 OWNED BY contacts.id;
-
