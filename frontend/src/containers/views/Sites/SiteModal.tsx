@@ -22,7 +22,7 @@ const formItemLayout = {
     }
 }
 
-const siteCategory = ['site', 'admin']
+const siteCategory = ['site']
 
 interface IProps extends FormComponentProps {
     visible: boolean
@@ -42,30 +42,26 @@ function SiteModal({ visible, onCancel, site, form }: IProps) {
     }
 
     function submit(e?: React.FormEvent<any>) {
-        alert("SITE STORE "+siteStore);
         if (e) {
             e.preventDefault()
         }
         form.validateFields(
             async (err, values): Promise<any> => {
                 if (!err) {
-                    alert("THERE WERE NO ERRORS");
                     toggleLoading()
                     try {
                         if (typeIsAdd) {
                             if (siteStore!==undefined) {
-                                alert("SITE IS THERE"+JSON.stringify(siteStore));
-                                //await siteStore.createSite(values)
-                                siteStore.changePageIndex(1)
+                                await siteStore.createSite(values)
+                                //siteStore.changePageIndex(1)
                             }
                         } else {
-                            alert("ALL GOOD - SITE ID "+site._id);
                             await siteStore.modifySite({ ...values, _id: site._id })
                             siteStore.getSites()
                         }
                         onCancel()
                     } catch (err) {
-                        alert("THERE IS AN ERROR "+err);
+                        console.log("THERE IS AN ERROR "+JSON.stringify(err));
                     }
                     toggleLoading()
                 }
@@ -83,9 +79,9 @@ function SiteModal({ visible, onCancel, site, form }: IProps) {
             okButtonProps={{ loading }}
         >
             <Form onSubmit={submit}>
-                <FormItem {...formItemLayout} label="address">
-                    {getFieldDecorator('address', {
-                        initialValue: site ? site.address : '',
+                <FormItem {...formItemLayout} label="host">
+                    {getFieldDecorator('host', {
+                        initialValue: site ? site.host : '',
                         rules: [{ required: true }]
                     })(<Input />)}
                 </FormItem>

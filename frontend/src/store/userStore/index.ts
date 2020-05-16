@@ -50,28 +50,35 @@ export class UserStore extends StoreExt {
     getUsers = async () => {
         this.getUsersloading = true
         try {
-            const res = await this.api.user.getUsers({ pageIndex: this.pageIndex, pageSize: this.pageSize })
+             var res = await this.api.user.getUsers({ pageIndex: this.pageIndex, pageSize: this.pageSize  });
+             
             runInAction('SET_USER_LIST', () => {
-                this.users = res.users
-                this.total = res.total
+                this.users = res.data
+                this.total = 2
             })
+
         } catch (err) {}
         runInAction('HIDE_USER_LIST_LOADING', () => {
             this.getUsersloading = false
         })
     }
-
+    
     createUser = async (user: IUserStore.IUser) => {
-        await this.api.user.createUser(user)
+        var res = await this.api.user.createUser(user)  
+        runInAction('SET_USER_LIST', () => {
+                             this.users = res.data
+                             this.total = 2
+                         
+        });
     }
 
     modifyUser = async (user: IUserStore.IUser) => {
         await this.api.user.modifyUser(user)
     }
 
-    deleteUser = async (_id: string) => {
-        await this.api.user.deleteUser({ _id })
-        this.getUsers()
+    deleteUser = async (id) => {
+        var res = await this.api.user.deleteUser(id)
+        this.getUsers();
     }
 
     @action

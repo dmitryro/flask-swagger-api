@@ -1,6 +1,5 @@
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 const openBrowser = require('react-dev-utils/openBrowser')
-
 const config = require('./config')
 const constants = require('./constants')
 const styleRules = require('./rules/styleRules')
@@ -10,6 +9,7 @@ const plugins = require('./plugins')
 const { assetsPath, resolve } = require('./utils')
 const optimization = require('./optimization')
 require('./cleanup-folder')
+require('webpack')
 
 const conf = {
     mode: process.env.NODE_ENV,

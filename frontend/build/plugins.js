@@ -1,4 +1,5 @@
 const webpack = require('webpack')
+const AntdScssThemePlugin = require("antd-scss-theme-plugin")
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const CaseSensitivePathsPlugin = require('case-sensitive-paths-webpack-plugin')
@@ -26,6 +27,9 @@ const basePlugins = [
     new MomentLocalesPlugin({
         localesToKeep: ['es-us', 'zh-cn']
     }),
+    new AntdScssThemePlugin(
+        assetsPath("themes/Ant.vars.scss")
+    ),
     new webpack.DefinePlugin(defineEnv),
     new TypedCssModulesPlugin({
         globPattern: 'src/!(styles)/**/*.scss'
@@ -38,6 +42,9 @@ const devPlugins = [
         template: 'build/tpl/index.html',
         inject: true
     }),
+    new AntdScssThemePlugin(
+        assetsPath("themes/Ant.vars.scss")
+    ),
     new CaseSensitivePathsPlugin(),
     ...compilerHooks
 ]
@@ -64,6 +71,9 @@ const prodPlugins = [
         filename: assetsPath('css/[name].[contenthash].css'),
         chunkFilename: assetsPath('css/[name].[id].[contenthash].css')
     }),
+    new AntdScssThemePlugin(
+        assetsPath("themes/Ant.vars.scss")
+    ),
     new WorkboxPlugin.GenerateSW({
         cacheId: 'ts-react-webpack',
         clientsClaim: true,

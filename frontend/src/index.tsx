@@ -7,6 +7,7 @@ import { configure } from 'mobx'
 import registerServiceWorker from './sw'
 import App from '@shared/App'
 
+
 registerServiceWorker()
 configure({ enforceActions: 'observed' })
 

@@ -1,19 +1,23 @@
-import http from '@services/http'
+import client from '@services/client'
 
 export default {
     getUsers(data: object): Promise<any> {
-        return http.get('user', data || {})
+         var users = client.all('users');
+         return users;
     },
 
     createUser(data: object): Promise<any> {
-        return http.post('user/create', data || {})
+        var users = client.post('users', data || {});
+        return users;
     },
 
     modifyUser(data: object): Promise<any> {
-        return http.post('user/modify', data || {})
+        var users = [];
+        return users;
     },
 
-    deleteUser(data: object): Promise<any> {
-        return http.post('user/delete', data || {})
+    deleteUser(id: number): Promise<any> {
+        var users = client.delete('users', id);
+        return users;
     }
 }

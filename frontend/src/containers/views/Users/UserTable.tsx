@@ -30,12 +30,12 @@ function UserTable({ scrollY }: IProps) {
                 className="center-table"
                 style={{ width: '100%' }}
                 bordered
-                rowKey="_id"
+                rowKey="id"
                 loading={userStore.getUsersloading}
                 dataSource={userStore.users}
                 scroll={{ y: scrollY }}
                 pagination={{
-                    current: userStore.pageIndex,
+                    current: userStore.pageIndex || 0,
                     showSizeChanger: true,
                     pageSize: userStore.pageSize,
                     pageSizeOptions: ['30', '20', '10'],
@@ -43,9 +43,12 @@ function UserTable({ scrollY }: IProps) {
                 }}
                 onChange={userStore.handleTableChange}
             >
-                <Table.Column<IUserStore.IUser> key="account" title="Account" dataIndex="account" width={200} />
-                <Table.Column<IUserStore.IUser> key="category" title="Category" dataIndex="category" width={100} />
-                <Table.Column<IUserStore.IUser> key="createdAt" title="CreatedAt" dataIndex="createdAt" width={200} />
+                <Table.Column<IUserStore.IUser> key="id" title="id" dataIndex="id" width={30} />
+                <Table.Column<IUserStore.IUser> key="username" title="Username" dataIndex="username" width={100} />
+                <Table.Column<IUserStore.IUser> key="first_name" title="First" dataIndex="first_name" width={120} />
+                <Table.Column<IUserStore.IUser> key="last_name" title="Last" dataIndex="last_name" width={120} />
+                <Table.Column<IUserStore.IUser> key="date_joined" title="Date Joined" dataIndex="date_joined" width={120} />
+                <Table.Column<IUserStore.IUser> key="last_login" title="Last Login" dataIndex="last_login" width={120} />
                 <Table.Column<IUserStore.IUser>
                     key="action"
                     title="Action"
@@ -59,7 +62,7 @@ function UserTable({ scrollY }: IProps) {
                             <Popconfirm
                                 placement="top"
                                 title="Delete?"
-                                onConfirm={() => userStore.deleteUser(record._id)}
+                                onConfirm={() => userStore.deleteUser(record.id)}
                                 okText="Yes"
                                 cancelText="No"
                             >

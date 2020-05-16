@@ -10,7 +10,6 @@ interface ChildrenProps<T> {
 export const RootContext = createContext<IStore>(null)
 
 /**
- * 已包含Observer
  * @param param0
  */
 export const RootConsumer = ({ children }: ChildrenProps<IStore>) => <Observer>{() => children(store)}</Observer>

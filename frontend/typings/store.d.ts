@@ -16,6 +16,7 @@ declare global {
      */
     interface IStore {
         authStore: IAuthStore.AuthStore
+        siteStore: ISiteStore.SiteStore
         userStore: IUserStore.UserStore
         globalStore: IGlobalStore.GlobalStore
         socketStore: ISocketStore.SocketStore

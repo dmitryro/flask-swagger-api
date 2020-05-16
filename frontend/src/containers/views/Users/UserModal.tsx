@@ -47,6 +47,9 @@ function UserModal({ visible, onCancel, user, form }: IProps) {
                 if (!err) {
                     toggleLoading()
                     try {
+                        alert("USER STORE GET USERS"+JSON.stringify(userStore.getUsers()
+                                                                   )
+                             );
                         if (typeIsAdd) {
                             await userStore.createUser(values)
                             userStore.changePageIndex(1)

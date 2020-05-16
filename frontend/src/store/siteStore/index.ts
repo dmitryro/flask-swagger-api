@@ -1,19 +1,15 @@
-import { observable, action, runInAction } from 'mobx'
+import { observable, action, autorun, runInAction } from 'mobx'
 import { PaginationConfig } from 'antd/lib/pagination'
 
 import { StoreExt } from '@utils/reactExt'
 
 export class SiteStore extends StoreExt {
     /**
-     * 加载用户列表时的loading
-     *
      * @memberof SiteStore
      */
     @observable
     getSitesloading = false
     /**
-     * 用户列表
-     *
      * @type {ISiteStore.ISite[]}
      * @memberof SiteStore
      */
@@ -42,36 +38,42 @@ export class SiteStore extends StoreExt {
     total = 0
 
     /**
-     * 加载用户列表
-     *
      * @memberof SiteStore
      */
     @action
     getSites = async () => {
         this.getSitesloading = true
         try {
-            const res = await this.api.site.getSites({ pageIndex: this.pageIndex, pageSize: this.pageSize })
-            runInAction('SET_USER_LIST', () => {
-                this.sites = res.sites
-                this.total = res.total
+            var res = await this.api.site.getSites({ pageIndex: this.pageIndex, pageSize: this.pageSize });
+            
+            runInAction('SET_SITE_LIST', () => {
+                                     this.sites = res.data
+                                     this.total = 2
+                                 
             })
         } catch (err) {}
-        runInAction('HIDE_USER_LIST_LOADING', () => {
+        runInAction('HIDE_SITE_LIST_LOADING', () => {
             this.getSitesloading = false
         })
     }
 
     createSite = async (site: ISiteStore.ISite) => {
-        await this.api.site.createSite(site)
+        var res = await this.api.site.createSite(site)
+        runInAction('SET_SITE_LIST', () => {
+                                          this.sites = res.data
+                                          this.total = 2
+             
+                     
+        });
     }
 
     modifySite = async (site: ISiteStore.ISite) => {
         await this.api.site.modifySite(site)
     }
 
-    deleteSite = async (_id: string) => {
-        await this.api.site.deleteSite({ _id })
-        this.getSites()
+    deleteSite = async (id) => {
+        var res = await this.api.site.deleteSite(id) 
+        this.getSites();
     }
 
     @action

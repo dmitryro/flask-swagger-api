@@ -32,8 +32,8 @@ const methods: Method[] = ['get', 'post', 'put', 'delete']
 
 let authTimer: NodeJS.Timer = null
 
-const isSuccess = res => res.errCode === 0
-const resFormat = res => res.response || res.data || {}
+const isSuccess = res => (res && res.errCode === 0) || {}
+const resFormat = res => (res && res.response) || (res && res.data) || {}
 
 methods.forEach(v => {
     http[v] = (url: string, data: object, baseUrl?: string) => {
@@ -60,7 +60,7 @@ methods.forEach(v => {
                 if (!isSuccess(rdata)) {
                     return Promise.reject({
                         msg: rdata.msg,
-                        errCode: rdata.errCode,
+                        errCode: (rdata.errCode) ? rdata.errCode : 'error',
                         type: HTTPERROR[HTTPERROR.LOGICERROR],
                         config: response.config
                     })
@@ -68,22 +68,42 @@ methods.forEach(v => {
                 return resFormat(rdata)
             },
             error => {
-                if (TOKENERROR.includes(error.response.status)) {
-                    message.destroy()
-                    message.error('Authentication failure, Please relogin!')
-                    clearTimeout(authTimer)
-                    authTimer = setTimeout(() => {
-                        location.replace('/#/login')
-                    }, 300)
-                    return
+                if (error.response) {
+                        if (error.response.status) {
+                               if (TOKENERROR.includes(error.response.status)) {
+                                      message.destroy()
+                                      message.error('Authentication failure, Please relogin!')
+                                      clearTimeout(authTimer)
+                                      authTimer = setTimeout(() => {
+                                      location.replace('/#/login')
+                                      }, 300)
+                                      return
+
+                               }
+                        }
                 }
-                return Promise.reject({
-                    msg: error.response.statusText || error.message || 'network error',
-                    type: /^timeout of/.test(error.message)
-                        ? HTTPERROR[HTTPERROR.TIMEOUTERROR]
-                        : HTTPERROR[HTTPERROR.NETWORKERROR],
-                    config: error.config
-                })
+                if (error.response) {
+                    if (error.response.statusText) { 
+
+                        return Promise.reject({
+                            msg: error.response.statusText || error.message || 'network error',
+                            type: /^timeout of/.test(error.message)
+                                ? HTTPERROR[HTTPERROR.TIMEOUTERROR]
+                                : HTTPERROR[HTTPERROR.NETWORKERROR],
+                                config: error.config
+                            });
+                    }
+                } else {
+
+                    return Promise.reject({
+                        msg: 'Not found' || error.message || 'network error',
+                        type: /^timeout of/.test(error.message)
+                             ? HTTPERROR[HTTPERROR.TIMEOUTERROR]
+                            : HTTPERROR[HTTPERROR.NETWORKERROR],
+                        config: error.config
+                    })
+
+                }
             }
         )
         if (v === 'get') {

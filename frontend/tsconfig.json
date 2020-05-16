@@ -10,6 +10,8 @@
         "rootDirs": ["./src"],
         "baseUrl": "./src",
         "paths": {
+            "@pages/*": ["pages/"],
+            "@models/*": ["models"],
             "@constants/*": ["constants/*"],
             "@services/*": ["services/*"],
             "@store/*": ["store/*"],
