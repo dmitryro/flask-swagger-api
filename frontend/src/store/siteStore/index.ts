@@ -4,7 +4,19 @@ import { PaginationConfig } from 'antd/lib/pagination'
 import { StoreExt } from '@utils/reactExt'
 
 export class SiteStore extends StoreExt {
-    /**
+   @observable
+   crawlingProgress = 0
+
+   /**
+    * Increase progress bar
+    */
+   setCrawlingProgress = progress => {
+      if (this.crawlingProgress < 100) {
+          this.crawlingProgress = progress;
+      }
+   };
+
+   /**
      * @memberof SiteStore
      */
     @observable
@@ -59,12 +71,12 @@ export class SiteStore extends StoreExt {
 
     createSite = async (site: ISiteStore.ISite) => {
         var res = await this.api.site.createSite(site)
-        runInAction('SET_SITE_LIST', () => {
-                                          this.sites = res.data
-                                          this.total = 2
-             
-                     
-        });
+        this.getSites();
+    }
+
+    crawlSite = async (id) => {
+        var res = await this.api.site.crawlSite(id);
+        this.getSites();
     }
 
     modifySite = async (site: ISiteStore.ISite) => {
@@ -72,6 +84,7 @@ export class SiteStore extends StoreExt {
     }
 
     deleteSite = async (id) => {
+        alert("DELETING "+id);
         var res = await this.api.site.deleteSite(id) 
         this.getSites();
     }
