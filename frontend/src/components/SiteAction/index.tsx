@@ -14,25 +14,22 @@ function SiteAction({record}) {
     const { siteStore } = useRootStore()
     return (
         <span>
-                            <span className={styles.ctrlEle} onClick={() => siteStore.crawlSite(record.id)}>
-                               Crawl
-                            </span>
-
-                            <Divider type="vertical" />
-
-                            <span className={styles.ctrlEle} onClick={() => modifySite(record)}>
-                                Modify
-                            </span>
-                            <Divider type="vertical" />
-                            <Popconfirm
-                                placement="top"
-                                title="Delete?"
-                                onConfirm={() => siteStore.deleteSite(record.id)}
-                                okText="Yes"
-                                cancelText="No"
-                            >
-                                <span className={styles.ctrlEle}>Delete</span>
-                            </Popconfirm>
+            <span className={styles.ctrlEle} onClick={() => siteStore.crawlSite(record.id)}>
+            Crawl
+            </span>
+            <Divider type="vertical" />
+            <span className={styles.ctrlEle} onClick={() => modifySite(record)}>
+            Modify
+            </span>
+            <Divider type="vertical" />
+            <Popconfirm
+             placement="top"
+             title="Delete?"
+             onConfirm={() => siteStore.deleteSite(record.id)}
+             okText="Yes"
+             cancelText="No">
+                <span className={styles.ctrlEle}>Delete</span>
+            </Popconfirm>
         </span>
     )
 }
