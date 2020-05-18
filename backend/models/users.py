@@ -1,4 +1,5 @@
 from flask import Flask
+from marshmallow_sqlalchemy import ModelSchema
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -82,7 +83,7 @@ class User(Base):
                                            self.is_active)
 
 
-class UserSchema(ma.ModelSchema):
+class UserSchema(ModelSchema):
     """ Use this schema to serialize users """
     class Meta:
         model = User

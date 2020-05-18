@@ -5,14 +5,23 @@ import { StoreExt } from '@utils/reactExt'
 
 export class SiteStore extends StoreExt {
    @observable
-   crawlingProgress = 0
+   crawlingProgress = 15
 
+   @observable
+   isCrawling = false
+
+   @observable
+   site_id = -1
    /**
     * Increase progress bar
     */
+   @action
    setCrawlingProgress = progress => {
       if (this.crawlingProgress < 100) {
           this.crawlingProgress = progress;
+      } else {
+          this.crawlingProgress = 0;
+          this.isCrawling = false;
       }
    };
 
@@ -74,8 +83,21 @@ export class SiteStore extends StoreExt {
         this.getSites();
     }
 
+    @action
     crawlSite = async (id) => {
+        this.isCrawling = true;
+        this.site_id = id;
+       // this.crawlingProgress = 0;
+        //this.setCrawlingProgress = 0;
+
         var res = await this.api.site.crawlSite(id);
+        //if (this.crawlingProgress == 100) {
+        //     this.isCrawling = false;
+        //     this.crawlingProgress = 0;
+        //}
+        setTimeout(function () {
+                  this.setCrawlingProgres s= this.crawlingProgress + 10; 
+        }, 3000);
         this.getSites();
     }
 
@@ -84,7 +106,6 @@ export class SiteStore extends StoreExt {
     }
 
     deleteSite = async (id) => {
-        alert("DELETING "+id);
         var res = await this.api.site.deleteSite(id) 
         this.getSites();
     }

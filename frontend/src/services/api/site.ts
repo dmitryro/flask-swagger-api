@@ -7,6 +7,7 @@ function revert(node, old) {
 }
 
 export default {
+ 
     getSites(data: object): Promise<any> {
         // Get all sites
         var sites = client.all('sites');
@@ -14,10 +15,6 @@ export default {
     },
 
     crawlSite(id: number): Promise<any> {
-       var node = document.querySelectorAll("tr[data-row-key='"+id+"']")[0];
-       var old = node.childNodes[7].innerHTML;
-       node.childNodes[7].innerHTML= "<p>TEST</p>";
-       setInterval(revert(node, old), 5000); 
        return false;
     },
 

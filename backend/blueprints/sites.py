@@ -21,7 +21,7 @@ from models.sites import Site, SiteSchema
 from models.sites import Page, PageSchema
 from models.sites import Form, FormSchema
 from models.sites import FormField, FormFieldSchema
-from utils.spide import crawl, internal_urls, get_all_page_forms 
+from utils.spide import crawl, internal_urls, get_all_page_forms
 
 sites_blueprint = Blueprint('sites', __name__, template_folder='templates')
 
@@ -36,6 +36,108 @@ def obtain_session():
     # Bind the sessionmaker to engine
     session.configure(bind=engine)
     return session()
+
+
+@sites_blueprint.route("/crawl/<int:id>", methods=['GET'])
+def get_elements(id):
+    """
+    Retrieve a single Site
+    This endpoint will return a Site based on it's id
+    ---
+    tags:
+      - Crawl
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        description: ID of site to crawl
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Site forms crawled
+        schema:
+          $ref: '#/definitions/Site'
+      404:
+        description: Site not found
+    """
+    try:
+        base_url = "https://lovehate.io"
+        s = obtain_session()
+        site = s.query(Site).filter(Site.id==id).first()
+        host = site.host
+        port = site.port
+        site_links = crawl(base_url, max_urls=20)
+        crawled_pages = list(site_links)
+
+        site_schema = SiteSchema(many=False)
+        form_schema = FormSchema(many=True)
+        page_schema = PageSchema(many=True)
+        pages = []
+
+        for page in crawled_pages:
+            p = Page(name=page, site_id=site.id)
+            s.add(p)
+            pages.append(p)
+
+        s.commit()
+        s.flush()
+
+
+        stored_forms = {}
+        stored_fields = {}
+
+        for page in pages:
+            link = f"{base_url}{page.name}"
+            crawled_forms = get_all_page_forms(link)
+            forms = []
+
+            for i, form in enumerate(crawled_forms):
+               f = Form(name=form.get('name',''),
+                        method=form.get('method', ''),
+                        action=form.get('action', ''),
+                        form_id=form.get('id',''),
+                        page_id=page.id)
+               s.add(f)
+               forms.append(f)
+               form_id = form.get('form_id')
+               stored_fields[f'fields_{page.id}_{i}'] = form['fields']
+
+
+            s.commit()
+            s.flush()
+            forms_result = form_schema.dump(forms)
+            stored_forms[f'forms_{page.id}'] = forms_result
+            stored_forms[f'forms_{page.id}_crawled'] = crawled_forms
+
+
+
+        pages_result = page_schema.dump(pages)
+
+
+        for page in pages_result:
+            page_id = page.get('id')
+            forms = stored_forms[f'forms_{page_id}']
+            crawled_forms = stored_forms[f'forms_{page_id}_crawled']
+
+            for i, form in enumerate(forms):
+                form_id = form.get('id')
+                fields = stored_fields[f'fields_{page_id}_{i}']
+        
+                form['fields'] = fields
+
+            page['forms'] = forms
+
+        result = site_schema.dump(site)
+        result['pages'] = pages_result
+        logging.info(f"Saved new site {host} {port}")
+        return make_response(jsonify(result),  status.HTTP_201_CREATED)
+    except Exception as e:
+        result = {"error": str(e)}
+
+    return make_response(jsonify(result), status.HTTP_200_OK)
+
 
 
 @sites_blueprint.route("/sites/<int:id>", methods=['GET'])
@@ -123,79 +225,79 @@ def create_site():
         port = data.get("port", "80")
         site = Site(host=host,
                     port=int(port),
-                    ga=ga)     
+                    ga=ga)
         base_url = f"https://{host}"
         base_url = "https://lovehate.io"
         l = []
-       
+
         s = obtain_session()
         s.add(site)
         s.commit()
-        s.flush()
-        site_links = crawl(base_url, max_urls=20)
-        crawled_pages = list(site_links)
+        #s.flush()
 
-        page_schema = PageSchema(many=True)
+        #site_links = crawl(base_url, max_urls=20)
+        #crawled_pages = list(site_links)
+
         site_schema = SiteSchema(many=False)
-        form_schema = FormSchema(many=True)
+        #form_schema = FormSchema(many=True)
+        #page_schema = PageSchema(many=True)
+        #pages = []
 
-        pages = []
+        #for page in crawled_pages:
+        #    p = Page(name=page, site_id=site.id)
+        #    s.add(p)
+        #    pages.append(p)
 
-        for page in crawled_pages:
-            p = Page(name=page, site_id=site.id)
-            s.add(p)
-            pages.append(p)            
-
-        s.commit()
-        s.flush()
-
-
-        stored_forms = {}       
-        stored_fields = {}
-
-        for page in pages:
-            link = f"{base_url}{page.name}"
-            crawled_forms = get_all_page_forms(link)
-            forms = []
-
-            for i, form in enumerate(crawled_forms):
-               f = Form(name=form.get('name',''),
-                        method=form.get('method', ''),
-                        action=form.get('action', ''),
-                        form_id=form.get('id',''),
-                        page_id=page.id)
-               s.add(f)
-               forms.append(f)
-               form_id = form.get('form_id')
-               stored_fields[f'fields_{page.id}_{i}'] = form['fields']
-                   
-           
-            s.commit()
-            s.flush()
-            forms_result = form_schema.dump(forms)
-            stored_forms[f'forms_{page.id}'] = forms_result
-            stored_forms[f'forms_{page.id}_crawled'] = crawled_forms
+        #s.commit()
+        #s.flush()
 
 
+        #stored_forms = {}
+        #stored_fields = {}
 
-        pages_result = page_schema.dump(pages)
+        #for page in pages:
+        #    link = f"{base_url}{page.name}"
+        #    crawled_forms = get_all_page_forms(link)
+        #    forms = []
+
+        #    for i, form in enumerate(crawled_forms):
+        #       f = Form(name=form.get('name',''),
+        #                method=form.get('method', ''),
+        #                action=form.get('action', ''),
+        #                form_id=form.get('id',''),
+        #                page_id=page.id)
+        #       s.add(f)
+        #       forms.append(f)
+        #       form_id = form.get('form_id')
+        #       stored_fields[f'fields_{page.id}_{i}'] = form['fields']
 
 
-        for page in pages_result:
-            page_id = page.get('id')
-            forms = stored_forms[f'forms_{page_id}']
-            crawled_forms = stored_forms[f'forms_{page_id}_crawled']
+        #    s.commit()
+        #    s.flush()
+        #    forms_result = form_schema.dump(forms)
+        #    stored_forms[f'forms_{page.id}'] = forms_result
+        #    stored_forms[f'forms_{page.id}_crawled'] = crawled_forms
 
-            for i, form in enumerate(forms):
-                form_id = form.get('id')
-                fields = stored_fields[f'fields_{page_id}_{i}']
-                
-                form['fields'] = fields
- 
-            page['forms'] = forms
+
+
+        #pages_result = page_schema.dump(pages)
+
+
+        #for page in pages_result:
+        #    page_id = page.get('id')
+        #    forms = stored_forms[f'forms_{page_id}']
+        #    crawled_forms = stored_forms[f'forms_{page_id}_crawled']
+
+        #    for i, form in enumerate(forms):
+        #        form_id = form.get('id')
+        #        fields = stored_fields[f'fields_{page_id}_{i}']
+        #
+        #        form['fields'] = fields
+
+        #    page['forms'] = forms
 
         result = site_schema.dump(site)
-        result['pages'] = pages_result
+        #result['pages'] = pages_result
         logging.info(f"Saved new site {host} {port}")
         return make_response(jsonify(result),  status.HTTP_201_CREATED)
     except Exception as e:
@@ -330,14 +432,18 @@ def delete_site(id):
       204:
         description: Site deleted
     """
-    sess = obtain_session()
-    site = sess.query(Site).get(id)
+    try:
+        sess = obtain_session()
+        site = sess.query(Site).filter(Site.id==id).first()
 
-    if site:
-        sess.delete(site)
-        sess.commit()
+        if site:
+            sess.delete(site)
+            sess.commit()
+            sess.flush()
+        result = {"result": "success"}
+    except Exception as e:
+        result = {"result": "failure"}
 
-    result = {"result": "success"}
     return make_response(jsonify(result), status.HTTP_204_NO_CONTENT)
 
 

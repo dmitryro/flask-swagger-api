@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from marshmallow_sqlalchemy import ModelSchema
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -23,7 +24,7 @@ class State(Base):
                                            self.code)
 
 
-class StateSchema(ma.ModelSchema):
+class StateSchema(ModelSchema):
     """ Use this schema to serialize states """
     class Meta:
         model = State

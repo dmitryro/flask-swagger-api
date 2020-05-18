@@ -3,7 +3,7 @@
 #################
 from datetime import datetime
 import logging
- 
+
 from flask import Blueprint, Flask, json, jsonify, render_template, request, url_for, make_response
 from flasgger import Swagger
 from flask_api import status    # HTTP Status Codes
@@ -18,7 +18,7 @@ from worker import celery
 import celery.states as states
 
 from models.users import User, UserSchema
- 
+
 users_blueprint = Blueprint('users', __name__, template_folder='templates')
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ def obtain_session():
     return session()
 
 
-@users_blueprint.route("/users/<int:id>", methods=['GET']) 
+@users_blueprint.route("/users/<int:id>", methods=['GET'])
 def get_users(id):
     """
     Retrieve a single User
@@ -109,7 +109,7 @@ def list_users():
 
 
 
-@users_blueprint.route("/users/<int:id>", methods=['DELETE']) 
+@users_blueprint.route("/users/<int:id>", methods=['DELETE'])
 def delete_user(id):
     """
     Delete a User
@@ -190,7 +190,7 @@ def update_user(id):
     """
     data = request.json
     print(f"USER ID HERE WAS {id}")
-        
+
     sess = obtain_session()
     user = sess.query(User).get(id)
 
@@ -200,8 +200,8 @@ def update_user(id):
     user.password = data.get('password', user.password)
     user.bio = data.get('bio', user.bio)
     user.email = data.get('email', user.email)
-    user.first_name = data.get('first_name', user.first_name) 
-    user.last_name = data.get('last_name', user.last_name)   
+    user.first_name = data.get('first_name', user.first_name)
+    user.last_name = data.get('last_name', user.last_name)
     user.username = data.get('username', user.username)
     sess.commit()
 
@@ -257,7 +257,9 @@ def create_user():
         description: Bad Request (the posted data was not valid)
     """
     try:
+        print(f"===================> REQUEST WAS {request}")
         data = request.json
+        print(f"===================> POST WAS {data}")
         first_name = data.get("first_name", "")
         last_name = data.get("last_name", "")
         username = data.get("account", "")

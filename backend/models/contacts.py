@@ -1,4 +1,5 @@
 from flask import Flask
+from marshmallow_sqlalchemy import ModelSchema
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -33,7 +34,7 @@ class Contact(Base):
                                                              self.email,
                                                              self.message)
 
-class ContactSchema(ma.ModelSchema):
+class ContactSchema(ModelSchema):
     """ Use this schema to serialize contacts """
     class Meta:
         model = Contact

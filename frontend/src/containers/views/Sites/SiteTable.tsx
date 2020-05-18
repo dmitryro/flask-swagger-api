@@ -51,9 +51,12 @@ function SiteTable({ scrollY }: IProps) {
                 <Table.Column<ISiteStore.ISite> key="host" title="Host" dataIndex="host" width={120} />
                 <Table.Column<ISiteStore.ISite> key="ip" title="IP" dataIndex="ip" width={80} />
                 <Table.Column<ISiteStore.ISite> key="port" title="Port" dataIndex="port" width={80} />
-                <Table.Column<ISiteStore.ISite> key="ga" title="Google Analytics" dataIndex="ga" width={120} />  
-                <Table.Column<ISiteStore.ISite> key="date_added" title="Added At" dataIndex="date_added" width={90} />
-                <Table.Column<ISiteStore.ISite> key="date_last_crawled" title="Last Crawled At" dataIndex="date_last_crawled" width={90} />
+                <Table.Column<ISiteStore.ISite> key="ga" title="Google
+Analytics" dataIndex="ga" width={100} />  
+                <Table.Column<ISiteStore.ISite> key="date_added" title="Added
+At" dataIndex="date_added" width={100} />
+                <Table.Column<ISiteStore.ISite> key="date_last_crawled"
+title="Last Crawled At" dataIndex="date_last_crawled" width={100} />
                 <Table.Column<ISiteStore.ISite> 
                     key="action"
                     title="Action"

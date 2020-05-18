@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_marshmallow import Marshmallow
+from marshmallow_sqlalchemy import ModelSchema
 from flask_marshmallow.fields import fields
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
@@ -129,14 +130,14 @@ class Page(Base):
                                               self.headers,
                                               self.site_id)
 
-class FormFieldSchema(ma.ModelSchema):
+class FormFieldSchema(ModelSchema):
     """ Use this schema to serialize formfields """
     class Meta:
         fields = ("id", "field_id", "field_nname", "field_type", 
                   "field_placeholder", "field_value", "form_id",)
 
 
-class FormSchema(ma.ModelSchema):
+class FormSchema(ModelSchema):
     """ Use this schema to serialize forms """
     fields = fields.Nested(FormFieldSchema)
 
@@ -144,7 +145,7 @@ class FormSchema(ma.ModelSchema):
         fields = ("id", "form_id", "name", "method", "body", "page_id", "action",)
 
 
-class PageSchema(ma.ModelSchema):
+class PageSchema(ModelSchema):
     """ Use this schema to serialize pages """
     forms = fields.Nested(FormSchema)
 
@@ -152,7 +153,7 @@ class PageSchema(ma.ModelSchema):
         fields = ("id", "name", "meat", "headers", "site_id",)
 
 
-class SiteSchema(ma.ModelSchema):
+class SiteSchema(ModelSchema):
     """ Use this schema to serialize sites """
     pages = fields.Nested(PageSchema)
 
