@@ -9,9 +9,11 @@ export const asynchronousComponents = {
     Sites: loadComponent(() => import(/* webpackChunkName:"sites"  */ '@views/Sites')),
     Users: loadComponent(() => import(/* webpackChunkName: "users" */ '@views/Users')),
     Settings: loadComponent(() => import(/* webpackChunkName: "settings" */ '@views/Settings')),
-    Metrics: loadComponent(() => import(/* webpackChunkName: "metrics" */ '@views/Metrics')),
-    Tasks: loadComponent(() => import(/* webpackChunkName: "tasks" */ '@views/Tasks')),
-    Filters: loadComponent(() => import(/* webpackChunkName: "filters" */ '@views/Filters')),
+    Analytics: loadComponent(() => import(/* webpackChunkName: "metrics" */'@views/Analytics')),
+    Chains: loadComponent(() => import(/* webpackChunkName: "tasks" */'@views/Chains')),
+    Rules: loadComponent(() => import(/* webpackChunkName: "filters" */'@views/Rules')),
+    Events: loadComponent(() => import(/* webpackChunkName: "filters" */'@views/Events')),
+    Contacts: loadComponent(() => import(/* webpackChunkName: "filters" */'@views/Contacts')),
     Actions: loadComponent(() => import(/* webpackChunkName: "actions" */ '@views/Actions'))
 }
 
@@ -51,14 +53,6 @@ export const menu: IMenu[] = [
     },
     {
         id: 3,
-        path: '/filters',
-        title: 'Filters',
-        icon: 'filter',
-        component: 'Filters',
-        exact: true
-    },
-    {
-        id: 4,
         path: '/actions',
         title: 'Actions',
         icon: 'tool',
@@ -66,30 +60,53 @@ export const menu: IMenu[] = [
         exact: true
     },
     {
+        id: 4,
+        path: '/chains',
+        title: 'Chains',
+        icon: 'filter',
+        component: 'Chains',
+        exact: true
+    },
+    {
         id: 5,
-        path: '/tasks',
-        title: 'Tasks',
-        icon: 'hourglass',
-        component: 'Tasks',
+        path: '/rules',
+        title: 'Rules',
+        icon: 'tool',
+        component: 'Rules',
         exact: true
     },
     {
         id: 6,
-        path: '/metrics',
-        title: 'Metrics',
-        icon: 'project',
-        component: 'Metrics',
+        path: '/events',
+        title: 'Events',
+        icon: 'hourglass',
+        component: 'Events',
         exact: true
     },
     {
         id: 7,
+        path: '/analytics',
+        title: 'Analytics',
+        icon: 'project',
+        component: 'Analytics',
+        exact: true
+    },
+    {
+        id: 8,
+        path: '/contacts',
+        title: 'Contacts',
+        icon: 'tool',
+        component: 'Contacts',
+        exact: true
+    },
+    {
+        id: 9,
         path: '/settings',
         title: 'Settings',
         icon: 'setting',
         component: 'Settings',
         exact: true
     }
-
 ]
 
 export default menu

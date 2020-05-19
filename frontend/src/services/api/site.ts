@@ -15,7 +15,8 @@ export default {
     },
 
     crawlSite(id: number): Promise<any> {
-       return false;
+       var forms = client.get('crawl', id);
+       return forms;
     },
 
     createSite(data: object): Promise<any> {

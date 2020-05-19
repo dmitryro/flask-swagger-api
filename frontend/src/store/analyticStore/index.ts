@@ -3,40 +3,38 @@ import { PaginationConfig } from 'antd/lib/pagination'
 
 import { StoreExt } from '@utils/reactExt'
 
-export class ActionStore extends StoreExt {
+export class AnalyticStore extends StoreExt {
     /**
-     * 加载用户列表时的loading
-     *
-     * @memberof ActionStore
+     * @memberof AnalyticStore
      */
     @observable
-    getActionsloading = false
+    getAnalyticsloading = false
     /**
      * 用户列表
      *
-     * @type {IActionStore.IAction[]}
-     * @memberof ActionStore
+     * @type {IAnalyticStore.IAnalytic[]}
+     * @memberof AnalyticStore
      */
     @observable
-    actions: IActionStore.IAction[] = []
+    analytics: IAnalyticStore.IAnalytic[] = []
     /**
      * table pageIndex
      *
-     * @memberof ActionStore
+     * @memberof AnalyticStore
      */
     @observable
     pageIndex = 1
     /**
      * table pageSize
      *
-     * @memberof ActionStore
+     * @memberof AnalyticStore
      */
     @observable
     pageSize = 30
     /**
-     * actions total
+     * analytics total
      *
-     * @memberof ActionStore
+     * @memberof AnalyticStore
      */
     @observable
     total = 0
@@ -44,46 +42,46 @@ export class ActionStore extends StoreExt {
     /**
      * 加载用户列表
      *
-     * @memberof ActionStore
+     * @memberof AnalyticStore
      */
     @action
-    getActions = async () => {
-        this.getActionsloading = true
+    getAnalytics = async () => {
+        this.getAnalyticsloading = true
         try {
-            const res = await this.api.action.getActions({ pageIndex: this.pageIndex, pageSize: this.pageSize })
+            const res = await this.api.analytic.getAnalytics({ pageIndex: this.pageIndex, pageSize: this.pageSize })
             runInAction('SET_USER_LIST', () => {
-                this.actions = res.actions
+                this.analytics = res.analytics
                 this.total = res.total
             })
         } catch (err) {}
         runInAction('HIDE_USER_LIST_LOADING', () => {
-            this.getActionsloading = false
+            this.getAnalyticsloading = false
         })
     }
 
-    createAction = async (action: IActionStore.IAction) => {
-        await this.api.action.createAction(action)
+    createAnalytic = async (analytic: IAnalyticStore.IAnalytic) => {
+        await this.api.analytic.createAnalytic(analytic)
     }
 
-    modifyAction = async (action: IActionStore.IAction) => {
-        await this.api.action.modifyAction(action)
+    modifyAnalytic = async (analytic: IAnalyticStore.IAnalytic) => {
+        await this.api.analytic.modifyAnalytic(analytic)
     }
 
-    deleteAction = async (_id: string) => {
-        await this.api.action.deleteAction({ _id })
-        this.getActions()
+    deleteAnalytic = async (_id: string) => {
+        await this.api.analytic.deleteAnalytic({ _id })
+        this.getAnalytics()
     }
 
     @action
     changePageIndex = (pageIndex: number) => {
         this.pageIndex = pageIndex
-        this.getActions()
+        this.getAnalytics()
     }
 
     @action
     changePageSize = (pageSize: number) => {
         this.pageSize = pageSize
-        this.getActions()
+        this.getAnalytics()
     }
 
     handleTableChange = (pagination: PaginationConfig) => {
@@ -97,4 +95,4 @@ export class ActionStore extends StoreExt {
     }
 }
 
-export default new ActionStore()
+export default new AnalyticStore()

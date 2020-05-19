@@ -22,20 +22,20 @@ const formItemLayout = {
     }
 }
 
-const actionCategory = ['action']
+const chainCategory = ['chain']
 
 interface IProps extends FormComponentProps {
     visible: boolean
     onCancel: () => void
-    action?: IActionStore.IAction
+    chain?: IChainStore.IChain
 }
 
-function ActionModal({ visible, onCancel, action, form }: IProps) {
-    const { actionStore } = useRootStore()
+function ChainModal({ visible, onCancel, chain, form }: IProps) {
+    const { chainStore } = useRootStore()
 
     const [loading, setLoading] = React.useState(false)
 
-    const typeIsAdd = action === undefined
+    const typeIsAdd = chain === undefined
 
     function toggleLoading() {
         setLoading(l => !l)
@@ -51,13 +51,13 @@ function ActionModal({ visible, onCancel, action, form }: IProps) {
                     toggleLoading()
                     try {
                         if (typeIsAdd) {
-                            if (actionStore!==undefined) {
-                                await actionStore.createAction(values)
-                                //actionStore.changePageIndex(1)
+                            if (chainStore!==undefined) {
+                                await chainStore.createChain(values)
+                                //chainStore.changePageIndex(1)
                             }
                         } else {
-                            await actionStore.modifyAction({ ...values, _id: action._id })
-                            actionStore.getActions()
+                            await chainStore.modifyChain({ ...values, _id: chain._id })
+                            chainStore.getChains()
                         }
                         onCancel()
                     } catch (err) {
@@ -72,7 +72,7 @@ function ActionModal({ visible, onCancel, action, form }: IProps) {
     const { getFieldDecorator } = form
     return (
         <Modal
-            title={typeIsAdd ? 'Add Action' : 'Modify Action'}
+            title={typeIsAdd ? 'Add Chain' : 'Modify Chain'}
             visible={visible}
             onOk={submit}
             onCancel={onCancel}
@@ -83,4 +83,4 @@ function ActionModal({ visible, onCancel, action, form }: IProps) {
         </Modal>
     )
 }
-export default Form.create<IProps>()(observer(ActionModal))
+export default Form.create<IProps>()(observer(ChainModal))

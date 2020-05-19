@@ -3,40 +3,40 @@ import { PaginationConfig } from 'antd/lib/pagination'
 
 import { StoreExt } from '@utils/reactExt'
 
-export class ActionStore extends StoreExt {
+export class RuleStore extends StoreExt {
     /**
      * 加载用户列表时的loading
      *
-     * @memberof ActionStore
+     * @memberof RuleStore
      */
     @observable
-    getActionsloading = false
+    getRulesloading = false
     /**
      * 用户列表
      *
-     * @type {IActionStore.IAction[]}
-     * @memberof ActionStore
+     * @type {IRuleStore.IRule[]}
+     * @memberof RuleStore
      */
     @observable
-    actions: IActionStore.IAction[] = []
+    rules: IRuleStore.IRule[] = []
     /**
      * table pageIndex
      *
-     * @memberof ActionStore
+     * @memberof RuleStore
      */
     @observable
     pageIndex = 1
     /**
      * table pageSize
      *
-     * @memberof ActionStore
+     * @memberof RuleStore
      */
     @observable
     pageSize = 30
     /**
-     * actions total
+     * rules total
      *
-     * @memberof ActionStore
+     * @memberof RuleStore
      */
     @observable
     total = 0
@@ -44,46 +44,46 @@ export class ActionStore extends StoreExt {
     /**
      * 加载用户列表
      *
-     * @memberof ActionStore
+     * @memberof RuleStore
      */
     @action
-    getActions = async () => {
-        this.getActionsloading = true
+    getRules = async () => {
+        this.getRulesloading = true
         try {
-            const res = await this.api.action.getActions({ pageIndex: this.pageIndex, pageSize: this.pageSize })
+            const res = await this.api.rule.getRules({ pageIndex: this.pageIndex, pageSize: this.pageSize })
             runInAction('SET_USER_LIST', () => {
-                this.actions = res.actions
+                this.rules = res.rules
                 this.total = res.total
             })
         } catch (err) {}
         runInAction('HIDE_USER_LIST_LOADING', () => {
-            this.getActionsloading = false
+            this.getRulesloading = false
         })
     }
 
-    createAction = async (action: IActionStore.IAction) => {
-        await this.api.action.createAction(action)
+    createRule = async (rule: IRuleStore.IRule) => {
+        await this.api.rule.createRule(rule)
     }
 
-    modifyAction = async (action: IActionStore.IAction) => {
-        await this.api.action.modifyAction(action)
+    modifyRule = async (rule: IRuleStore.IRule) => {
+        await this.api.rule.modifyRule(rule)
     }
 
-    deleteAction = async (_id: string) => {
-        await this.api.action.deleteAction({ _id })
-        this.getActions()
+    deleteRule = async (_id: string) => {
+        await this.api.rule.deleteRule({ _id })
+        this.getRules()
     }
 
     @action
     changePageIndex = (pageIndex: number) => {
         this.pageIndex = pageIndex
-        this.getActions()
+        this.getRules()
     }
 
     @action
     changePageSize = (pageSize: number) => {
         this.pageSize = pageSize
-        this.getActions()
+        this.getRules()
     }
 
     handleTableChange = (pagination: PaginationConfig) => {
@@ -97,4 +97,4 @@ export class ActionStore extends StoreExt {
     }
 }
 
-export default new ActionStore()
+export default new RuleStore()

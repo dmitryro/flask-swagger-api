@@ -22,10 +22,29 @@ function SettingTable({ scrollY }: IProps) {
         setModalVisible(true)
     }
 
-    //useOnMount(settingStore.getSettings)
+    useOnMount(settingStore.getSettings)
 
     return (
         <React.Fragment>
+            <Table<ISettingStore.ISetting>
+                className="center-table"
+                style={{ width: '100%' }}
+                bordered
+                rowKey="_id"
+                loading={settingStore.getSettingsloading}
+                dataSource={settingStore.settings}
+                scroll={{ y: scrollY }}
+                pagination={{
+                    current: settingStore.pageIndex,
+                    showSizeChanger: true,
+                    pageSize: settingStore.pageSize,
+                    pageSizeOptions: ['30', '20', '10'],
+                    total: settingStore.total
+                }}
+                onChange={settingStore.handleTableChange}
+            >
+            </Table>
+            <SettingModal visible={modalVisible} onCancel={() => setModalVisible(false)} setting={currentSetting} />
         </React.Fragment>
     )
 }

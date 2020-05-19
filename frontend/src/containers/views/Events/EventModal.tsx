@@ -22,20 +22,20 @@ const formItemLayout = {
     }
 }
 
-const actionCategory = ['action']
+const eventCategory = ['event']
 
 interface IProps extends FormComponentProps {
     visible: boolean
     onCancel: () => void
-    action?: IActionStore.IAction
+    event?: IEventStore.IEvent
 }
 
-function ActionModal({ visible, onCancel, action, form }: IProps) {
-    const { actionStore } = useRootStore()
+function EventModal({ visible, onCancel, event, form }: IProps) {
+    const { eventStore } = useRootStore()
 
     const [loading, setLoading] = React.useState(false)
 
-    const typeIsAdd = action === undefined
+    const typeIsAdd = event === undefined
 
     function toggleLoading() {
         setLoading(l => !l)
@@ -51,13 +51,13 @@ function ActionModal({ visible, onCancel, action, form }: IProps) {
                     toggleLoading()
                     try {
                         if (typeIsAdd) {
-                            if (actionStore!==undefined) {
-                                await actionStore.createAction(values)
-                                //actionStore.changePageIndex(1)
+                            if (eventStore!==undefined) {
+                                await eventStore.createEvent(values)
+                                //eventStore.changePageIndex(1)
                             }
                         } else {
-                            await actionStore.modifyAction({ ...values, _id: action._id })
-                            actionStore.getActions()
+                            await eventStore.modifyEvent({ ...values, _id: event._id })
+                            eventStore.getEvents()
                         }
                         onCancel()
                     } catch (err) {
@@ -72,7 +72,7 @@ function ActionModal({ visible, onCancel, action, form }: IProps) {
     const { getFieldDecorator } = form
     return (
         <Modal
-            title={typeIsAdd ? 'Add Action' : 'Modify Action'}
+            title={typeIsAdd ? 'Add Event' : 'Modify Event'}
             visible={visible}
             onOk={submit}
             onCancel={onCancel}
@@ -83,4 +83,4 @@ function ActionModal({ visible, onCancel, action, form }: IProps) {
         </Modal>
     )
 }
-export default Form.create<IProps>()(observer(ActionModal))
+export default Form.create<IProps>()(observer(EventModal))

@@ -22,20 +22,20 @@ const formItemLayout = {
     }
 }
 
-const actionCategory = ['action']
+const ruleCategory = ['rule']
 
 interface IProps extends FormComponentProps {
     visible: boolean
     onCancel: () => void
-    action?: IActionStore.IAction
+    rule?: IRuleStore.IRule
 }
 
-function ActionModal({ visible, onCancel, action, form }: IProps) {
-    const { actionStore } = useRootStore()
+function RuleModal({ visible, onCancel, rule, form }: IProps) {
+    const { ruleStore } = useRootStore()
 
     const [loading, setLoading] = React.useState(false)
 
-    const typeIsAdd = action === undefined
+    const typeIsAdd = rule === undefined
 
     function toggleLoading() {
         setLoading(l => !l)
@@ -51,13 +51,13 @@ function ActionModal({ visible, onCancel, action, form }: IProps) {
                     toggleLoading()
                     try {
                         if (typeIsAdd) {
-                            if (actionStore!==undefined) {
-                                await actionStore.createAction(values)
-                                //actionStore.changePageIndex(1)
+                            if (ruleStore!==undefined) {
+                                await ruleStore.createRule(values)
+                                //ruleStore.changePageIndex(1)
                             }
                         } else {
-                            await actionStore.modifyAction({ ...values, _id: action._id })
-                            actionStore.getActions()
+                            await ruleStore.modifyRule({ ...values, _id: rule._id })
+                            ruleStore.getRules()
                         }
                         onCancel()
                     } catch (err) {
@@ -72,7 +72,7 @@ function ActionModal({ visible, onCancel, action, form }: IProps) {
     const { getFieldDecorator } = form
     return (
         <Modal
-            title={typeIsAdd ? 'Add Action' : 'Modify Action'}
+            title={typeIsAdd ? 'Add Rule' : 'Modify Rule'}
             visible={visible}
             onOk={submit}
             onCancel={onCancel}
@@ -83,4 +83,4 @@ function ActionModal({ visible, onCancel, action, form }: IProps) {
         </Modal>
     )
 }
-export default Form.create<IProps>()(observer(ActionModal))
+export default Form.create<IProps>()(observer(RuleModal))

@@ -1,6 +1,10 @@
 import React from 'react'
 import { observer } from 'mobx-react'
-import { Modal, Form, Input, Select } from 'antd'
+import { Form } from '@ant-design/compatible'
+import { Modal, Input, Select } from 'antd'
+import 'antd/es/grid/style/css' 
+import { Mention } from '@ant-design/compatible'
+import '@ant-design/compatible/assets/index.css'
 import { FormComponentProps } from 'antd/lib/form'
 
 import useRootStore from '@store/useRootStore'
@@ -18,7 +22,7 @@ const formItemLayout = {
     }
 }
 
-const settingCategory = ['setting', 'admin']
+const settingCategory = ['setting']
 
 interface IProps extends FormComponentProps {
     visible: boolean
@@ -37,9 +41,9 @@ function SettingModal({ visible, onCancel, setting, form }: IProps) {
         setLoading(l => !l)
     }
 
-    function submit(e?: React.FormEvent<any>) {
+    function submit(e?: React.FormSetting<any>) {
         if (e) {
-            e.preventDefault()
+            e.prsettingDefault()
         }
         form.validateFields(
             async (err, values): Promise<any> => {
@@ -47,14 +51,18 @@ function SettingModal({ visible, onCancel, setting, form }: IProps) {
                     toggleLoading()
                     try {
                         if (typeIsAdd) {
-                            await settingStore.createSetting(values)
-                            settingStore.changePageIndex(1)
+                            if (settingStore!==undefined) {
+                                await settingStore.createSetting(values)
+                                //settingStore.changePageIndex(1)
+                            }
                         } else {
                             await settingStore.modifySetting({ ...values, _id: setting._id })
                             settingStore.getSettings()
                         }
                         onCancel()
-                    } catch (err) {}
+                    } catch (err) {
+                        console.log("THERE IS AN ERROR "+JSON.stringify(err));
+                    }
                     toggleLoading()
                 }
             }
@@ -71,36 +79,8 @@ function SettingModal({ visible, onCancel, setting, form }: IProps) {
             okButtonProps={{ loading }}
         >
             <Form onSubmit={submit}>
-                <FormItem {...formItemLayout} label="account">
-                    {getFieldDecorator('account', {
-                        initialValue: setting ? setting.account : '',
-                        rules: [{ required: true }]
-                    })(<Input />)}
-                </FormItem>
-                {typeIsAdd && (
-                    <FormItem {...formItemLayout} label="password">
-                        {getFieldDecorator('password', {
-                            rules: [{ required: true }]
-                        })(<Input />)}
-                    </FormItem>
-                )}
-                <FormItem {...formItemLayout} label="category">
-                    {getFieldDecorator('category', {
-                        initialValue: setting ? setting.category : settingCategory[0],
-                        rules: [{ required: true }]
-                    })(
-                        <Select>
-                            {settingCategory.map(c => (
-                                <Select.Option key={c} value={c}>
-                                    {c}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    )}
-                </FormItem>
             </Form>
         </Modal>
     )
 }
-
 export default Form.create<IProps>()(observer(SettingModal))

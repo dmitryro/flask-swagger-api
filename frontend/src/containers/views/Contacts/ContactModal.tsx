@@ -22,28 +22,28 @@ const formItemLayout = {
     }
 }
 
-const actionCategory = ['action']
+const contactCategory = ['contact']
 
 interface IProps extends FormComponentProps {
     visible: boolean
     onCancel: () => void
-    action?: IActionStore.IAction
+    contact?: IContactStore.IContact
 }
 
-function ActionModal({ visible, onCancel, action, form }: IProps) {
-    const { actionStore } = useRootStore()
+function ContactModal({ visible, onCancel, contact, form }: IProps) {
+    const { contactStore } = useRootStore()
 
     const [loading, setLoading] = React.useState(false)
 
-    const typeIsAdd = action === undefined
+    const typeIsAdd = contact === undefined
 
     function toggleLoading() {
         setLoading(l => !l)
     }
 
-    function submit(e?: React.FormEvent<any>) {
+    function submit(e?: React.FormContact<any>) {
         if (e) {
-            e.preventDefault()
+            e.prcontactDefault()
         }
         form.validateFields(
             async (err, values): Promise<any> => {
@@ -51,13 +51,13 @@ function ActionModal({ visible, onCancel, action, form }: IProps) {
                     toggleLoading()
                     try {
                         if (typeIsAdd) {
-                            if (actionStore!==undefined) {
-                                await actionStore.createAction(values)
-                                //actionStore.changePageIndex(1)
+                            if (contactStore!==undefined) {
+                                await contactStore.createContact(values)
+                                //contactStore.changePageIndex(1)
                             }
                         } else {
-                            await actionStore.modifyAction({ ...values, _id: action._id })
-                            actionStore.getActions()
+                            await contactStore.modifyContact({ ...values, _id: contact._id })
+                            contactStore.getContacts()
                         }
                         onCancel()
                     } catch (err) {
@@ -72,7 +72,7 @@ function ActionModal({ visible, onCancel, action, form }: IProps) {
     const { getFieldDecorator } = form
     return (
         <Modal
-            title={typeIsAdd ? 'Add Action' : 'Modify Action'}
+            title={typeIsAdd ? 'Add Contact' : 'Modify Contact'}
             visible={visible}
             onOk={submit}
             onCancel={onCancel}
@@ -83,4 +83,4 @@ function ActionModal({ visible, onCancel, action, form }: IProps) {
         </Modal>
     )
 }
-export default Form.create<IProps>()(observer(ActionModal))
+export default Form.create<IProps>()(observer(ContactModal))

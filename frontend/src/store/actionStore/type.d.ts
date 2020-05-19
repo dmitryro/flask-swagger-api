@@ -1,13 +1,9 @@
-import { UserStore as UserStoreModel } from './index'
+import { ActionStore as ActionStoreModel } from './index'
 
-export as namespace IUserStore
+export as namespace IActionStore
 
-export interface UserStore extends UserStoreModel {}
+export interface ActionStore extends ActionStoreModel {}
 
-export interface IUser {
-    _id?: string
-    account: string
-    password?: string
-    category?: string
-    createdAt?: string
+export interface IAction {
+    id: number
 }

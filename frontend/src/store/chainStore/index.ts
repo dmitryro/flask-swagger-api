@@ -3,40 +3,38 @@ import { PaginationConfig } from 'antd/lib/pagination'
 
 import { StoreExt } from '@utils/reactExt'
 
-export class ActionStore extends StoreExt {
+export class ChainStore extends StoreExt {
     /**
-     * 加载用户列表时的loading
-     *
-     * @memberof ActionStore
+     * @memberof ChainStore
      */
     @observable
-    getActionsloading = false
+    getChainsloading = false
     /**
      * 用户列表
      *
-     * @type {IActionStore.IAction[]}
-     * @memberof ActionStore
+     * @type {IChainStore.IChain[]}
+     * @memberof ChainStore
      */
     @observable
-    actions: IActionStore.IAction[] = []
+    chains: IChainStore.IChain[] = []
     /**
      * table pageIndex
      *
-     * @memberof ActionStore
+     * @memberof ChainStore
      */
     @observable
     pageIndex = 1
     /**
      * table pageSize
      *
-     * @memberof ActionStore
+     * @memberof ChainStore
      */
     @observable
     pageSize = 30
     /**
-     * actions total
+     * chains total
      *
-     * @memberof ActionStore
+     * @memberof ChainStore
      */
     @observable
     total = 0
@@ -44,46 +42,46 @@ export class ActionStore extends StoreExt {
     /**
      * 加载用户列表
      *
-     * @memberof ActionStore
+     * @memberof ChainStore
      */
     @action
-    getActions = async () => {
-        this.getActionsloading = true
+    getChains = async () => {
+        this.getChainsloading = true
         try {
-            const res = await this.api.action.getActions({ pageIndex: this.pageIndex, pageSize: this.pageSize })
+            const res = await this.api.chain.getChains({ pageIndex: this.pageIndex, pageSize: this.pageSize })
             runInAction('SET_USER_LIST', () => {
-                this.actions = res.actions
+                this.chains = res.chains
                 this.total = res.total
             })
         } catch (err) {}
         runInAction('HIDE_USER_LIST_LOADING', () => {
-            this.getActionsloading = false
+            this.getChainsloading = false
         })
     }
 
-    createAction = async (action: IActionStore.IAction) => {
-        await this.api.action.createAction(action)
+    createChain = async (chain: IChainStore.IChain) => {
+        await this.api.chain.createChain(chain)
     }
 
-    modifyAction = async (action: IActionStore.IAction) => {
-        await this.api.action.modifyAction(action)
+    modifyChain = async (chain: IChainStore.IChain) => {
+        await this.api.chain.modifyChain(chain)
     }
 
-    deleteAction = async (_id: string) => {
-        await this.api.action.deleteAction({ _id })
-        this.getActions()
+    deleteChain = async (_id: string) => {
+        await this.api.chain.deleteChain({ _id })
+        this.getChains()
     }
 
     @action
     changePageIndex = (pageIndex: number) => {
         this.pageIndex = pageIndex
-        this.getActions()
+        this.getChains()
     }
 
     @action
     changePageSize = (pageSize: number) => {
         this.pageSize = pageSize
-        this.getActions()
+        this.getChains()
     }
 
     handleTableChange = (pagination: PaginationConfig) => {
@@ -97,4 +95,4 @@ export class ActionStore extends StoreExt {
     }
 }
 
-export default new ActionStore()
+export default new ChainStore()

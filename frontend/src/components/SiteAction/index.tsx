@@ -16,7 +16,8 @@ function SiteAction({record}) {
     const { siteStore } = useRootStore()
 
 
-    return (siteStore.isCrawling & record.id == siteStore.site_id  ? <CrawlingProgressBar progress={siteStore.crawlingProgress} /> :
+    return (siteStore.isCrawling & record.id == siteStore.site_id  ?
+           <CrawlingProgressBar progress={siteStore.crawlingProgress} /> :
                          <span>
                              <span className={styles.ctrlEle} onClick={() => siteStore.crawlSite(record.id)}>
                                  Crawl

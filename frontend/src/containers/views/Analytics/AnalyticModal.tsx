@@ -22,28 +22,28 @@ const formItemLayout = {
     }
 }
 
-const actionCategory = ['action']
+const analyticCategory = ['analytic']
 
 interface IProps extends FormComponentProps {
     visible: boolean
     onCancel: () => void
-    action?: IActionStore.IAction
+    analytic?: IAnalyticStore.IAnalytic
 }
 
-function ActionModal({ visible, onCancel, action, form }: IProps) {
-    const { actionStore } = useRootStore()
+function AnalyticModal({ visible, onCancel, analytic, form }: IProps) {
+    const { analyticStore } = useRootStore()
 
     const [loading, setLoading] = React.useState(false)
 
-    const typeIsAdd = action === undefined
+    const typeIsAdd = analytic === undefined
 
     function toggleLoading() {
         setLoading(l => !l)
     }
 
-    function submit(e?: React.FormEvent<any>) {
+    function submit(e?: React.FormAnalytic<any>) {
         if (e) {
-            e.preventDefault()
+            e.pranalyticDefault()
         }
         form.validateFields(
             async (err, values): Promise<any> => {
@@ -51,13 +51,13 @@ function ActionModal({ visible, onCancel, action, form }: IProps) {
                     toggleLoading()
                     try {
                         if (typeIsAdd) {
-                            if (actionStore!==undefined) {
-                                await actionStore.createAction(values)
-                                //actionStore.changePageIndex(1)
+                            if (analyticStore!==undefined) {
+                                await analyticStore.createAnalytic(values)
+                                //analyticStore.changePageIndex(1)
                             }
                         } else {
-                            await actionStore.modifyAction({ ...values, _id: action._id })
-                            actionStore.getActions()
+                            await analyticStore.modifyAnalytic({ ...values, _id: analytic._id })
+                            analyticStore.getAnalytics()
                         }
                         onCancel()
                     } catch (err) {
@@ -72,7 +72,7 @@ function ActionModal({ visible, onCancel, action, form }: IProps) {
     const { getFieldDecorator } = form
     return (
         <Modal
-            title={typeIsAdd ? 'Add Action' : 'Modify Action'}
+            title={typeIsAdd ? 'Add Analytic' : 'Modify Analytic'}
             visible={visible}
             onOk={submit}
             onCancel={onCancel}
@@ -83,4 +83,4 @@ function ActionModal({ visible, onCancel, action, form }: IProps) {
         </Modal>
     )
 }
-export default Form.create<IProps>()(observer(ActionModal))
+export default Form.create<IProps>()(observer(AnalyticModal))

@@ -3,40 +3,40 @@ import { PaginationConfig } from 'antd/lib/pagination'
 
 import { StoreExt } from '@utils/reactExt'
 
-export class ActionStore extends StoreExt {
+export class ContactStore extends StoreExt {
     /**
      * 加载用户列表时的loading
      *
-     * @memberof ActionStore
+     * @memberof ContactStore
      */
     @observable
-    getActionsloading = false
+    getContactsloading = false
     /**
      * 用户列表
      *
-     * @type {IActionStore.IAction[]}
-     * @memberof ActionStore
+     * @type {IContactStore.IContact[]}
+     * @memberof ContactStore
      */
     @observable
-    actions: IActionStore.IAction[] = []
+    contacts: IContactStore.IContact[] = []
     /**
      * table pageIndex
      *
-     * @memberof ActionStore
+     * @memberof ContactStore
      */
     @observable
     pageIndex = 1
     /**
      * table pageSize
      *
-     * @memberof ActionStore
+     * @memberof ContactStore
      */
     @observable
     pageSize = 30
     /**
-     * actions total
+     * contacts total
      *
-     * @memberof ActionStore
+     * @memberof ContactStore
      */
     @observable
     total = 0
@@ -44,46 +44,46 @@ export class ActionStore extends StoreExt {
     /**
      * 加载用户列表
      *
-     * @memberof ActionStore
+     * @memberof ContactStore
      */
     @action
-    getActions = async () => {
-        this.getActionsloading = true
+    getContacts = async () => {
+        this.getContactsloading = true
         try {
-            const res = await this.api.action.getActions({ pageIndex: this.pageIndex, pageSize: this.pageSize })
+            const res = await this.api.contact.getContacts({ pageIndex: this.pageIndex, pageSize: this.pageSize })
             runInAction('SET_USER_LIST', () => {
-                this.actions = res.actions
+                this.contacts = res.contacts
                 this.total = res.total
             })
         } catch (err) {}
         runInAction('HIDE_USER_LIST_LOADING', () => {
-            this.getActionsloading = false
+            this.getContactsloading = false
         })
     }
 
-    createAction = async (action: IActionStore.IAction) => {
-        await this.api.action.createAction(action)
+    createContact = async (contact: IContactStore.IContact) => {
+        await this.api.contact.createContact(contact)
     }
 
-    modifyAction = async (action: IActionStore.IAction) => {
-        await this.api.action.modifyAction(action)
+    modifyContact = async (contact: IContactStore.IContact) => {
+        await this.api.contact.modifyContact(contact)
     }
 
-    deleteAction = async (_id: string) => {
-        await this.api.action.deleteAction({ _id })
-        this.getActions()
+    deleteContact = async (_id: string) => {
+        await this.api.contact.deleteContact({ _id })
+        this.getContacts()
     }
 
     @action
     changePageIndex = (pageIndex: number) => {
         this.pageIndex = pageIndex
-        this.getActions()
+        this.getContacts()
     }
 
     @action
     changePageSize = (pageSize: number) => {
         this.pageSize = pageSize
-        this.getActions()
+        this.getContacts()
     }
 
     handleTableChange = (pagination: PaginationConfig) => {
@@ -97,4 +97,4 @@ export class ActionStore extends StoreExt {
     }
 }
 
-export default new ActionStore()
+export default new ContactStore()

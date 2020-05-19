@@ -1,11 +1,14 @@
-import { observable, action, autorun, runInAction } from 'mobx'
+import { observable, decorate,  action, autorun, runInAction } from 'mobx'
 import { PaginationConfig } from 'antd/lib/pagination'
 
 import { StoreExt } from '@utils/reactExt'
 
 export class SiteStore extends StoreExt {
    @observable
-   crawlingProgress = 15
+   crawlingProgress = 0
+
+   @observable
+   crawlingResult = undefined
 
    @observable
    isCrawling = false
@@ -26,7 +29,7 @@ export class SiteStore extends StoreExt {
    };
 
    /**
-     * @memberof SiteStore
+G     * @memberof SiteStore
      */
     @observable
     getSitesloading = false
@@ -87,17 +90,14 @@ export class SiteStore extends StoreExt {
     crawlSite = async (id) => {
         this.isCrawling = true;
         this.site_id = id;
-       // this.crawlingProgress = 0;
-        //this.setCrawlingProgress = 0;
-
-        var res = await this.api.site.crawlSite(id);
-        //if (this.crawlingProgress == 100) {
-        //     this.isCrawling = false;
-        //     this.crawlingProgress = 0;
-        //}
-        setTimeout(function () {
-                  this.setCrawlingProgres s= this.crawlingProgress + 10; 
-        }, 3000);
+        this.crawlingProgress = 0;
+        this.crawlingResult = undefined;
+        //var res = await 
+        this.api.site.crawlSite(id).then(result => {
+               this.crawlingResult = JSON.stringify(result);
+               this.isCrawling = false;
+               this.crawlingProgress = 100;
+        });
         this.getSites();
     }
 
@@ -132,5 +132,10 @@ export class SiteStore extends StoreExt {
         }
     }
 }
+
+decorate(SiteStore, {
+  crawlingtProgress: observable,
+  setConvertProgress: action
+});
 
 export default new SiteStore()

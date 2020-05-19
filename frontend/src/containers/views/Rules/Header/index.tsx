@@ -2,7 +2,7 @@ import React from 'react'
 import { Button } from 'antd'
 
 import styles from './index.scss'
-import SettingModal from './../SettingModal'
+import RuleModal from './../RuleModal'
 
 function Header() {
     const [modalVisible, setModalVisible] = React.useState(false)
@@ -14,9 +14,9 @@ function Header() {
     return (
         <div className={styles.header}>
             <Button type="primary" onClick={toggleModalVisible}>
-                add setting
+                add rule
             </Button>
-            <SettingModal visible={modalVisible} onCancel={toggleModalVisible} />
+            <RuleModal visible={modalVisible} onCancel={toggleModalVisible} />
         </div>
     )
 }
