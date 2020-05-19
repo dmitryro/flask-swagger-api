@@ -3,8 +3,8 @@ INSERT INTO users (username, password, category, email, first_name, last_name, i
 INSERT INTO users (username, password, category, email, first_name, last_name, is_staff, is_active, is_superuser, last_login, date_joined) VALUES ('Dmitryro', 'nu45edi1', 'admin
 ', 'dmitryro1@gmail.com', 'Dmitry', 'Roitman', TRUE, TRUE, TRUE, NOW(), NOW());
 
-INSERT INTO sites(host, port, ip, ga, date_added, date_last_crawled) VALUES ('3dact.com', '8080', '127.0.0.1', 'UI-201031', NOW(), NOW());
-INSERT INTO sites(host, port, ip, ga, date_added, date_last_crawled) VALUES ('lovehate.io', '8080', '127.0.0.1', 'UI-201032', NOW(), NOW());
+INSERT INTO sites(host, port, ip, ga, date_added, date_last_crawled) VALUES ('lovehate.io', '8080', '127.0.0.1', 'UI-201031', NOW(), NOW());
+INSERT INTO sites(host, port, ip, ga, date_added, date_last_crawled) VALUES ('3dact.com', '8080', '127.0.0.1', 'UI-201032', NOW(), NOW());
 
 INSERT INTO states (code, name) VALUES ('AL', 'Alabama');
 INSERT INTO states (code, name) VALUES ('AK', 'Alaska');
