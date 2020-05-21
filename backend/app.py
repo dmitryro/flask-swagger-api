@@ -22,6 +22,7 @@ from blueprints.users import users_blueprint
 from blueprints.contacts import contacts_blueprint
 from blueprints.states import states_blueprint
 from blueprints.sites import sites_blueprint
+from blueprints.actions import actions_blueprint
 
 # Pull options from environment
 debug = (os.getenv('DEBUG', 'False') == 'True')
@@ -34,6 +35,7 @@ def create_app():
     app.register_blueprint(contacts_blueprint)
     app.register_blueprint(states_blueprint)
     app.register_blueprint(sites_blueprint)
+    app.register_blueprint(actions_blueprint)
 
     # Configure Swagger before initilaizing it
     app.config['SWAGGER'] = {

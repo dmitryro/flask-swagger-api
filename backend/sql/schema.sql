@@ -101,12 +101,27 @@ CREATE TABLE formfields (
         field_id varchar(256),
         field_name varchar(256),
         field_value varchar(256),
-        field_tyle varchar(256),
+        field_type varchar(256),
         field_placeholder varchar(256),
         form_id integer NOT NULL,
         FOREIGN KEY(form_id) REFERENCES forms(id) ON DELETE CASCADE,
         UNIQUE(id)
     );
+
+CREATE SEQUENCE action_id_seq;
+
+CREATE TABLE actions (
+        id integer NOT NULL DEFAULT nextval('action_id_seq'),
+        is_running BOOLEAN DEFAULT FALSE,
+        profile_key varchar(256) NOT NULL,
+        name varchar(256) NOT NULL,
+        last_run date NOT NULL,
+        form_id integer,
+        field_id integer,
+        FOREIGN KEY(form_id) REFERENCES forms(id) ON DELETE CASCADE,
+        FOREIGN KEY(field_id) REFERENCES formfields(id) ON DELETE CASCADE,
+        UNIQUE(id)        
+);
 
 ALTER SEQUENCE formfield_id_seq 
 OWNED BY formfields.id;
@@ -128,3 +143,6 @@ OWNED BY states.id;
 
 ALTER SEQUENCE contact_id_seq
 OWNED BY contacts.id;
+
+ALTER SEQUENCE action_id_seq
+OWNED BY actions.id;

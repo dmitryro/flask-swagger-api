@@ -2,10 +2,14 @@ INSERT INTO users (username, password, category, email, first_name, last_name, i
 ', 'dmitryro@gmail.com', 'Nicollo', 'Machiavelli', TRUE, TRUE, TRUE, NOW(), NOW());
 INSERT INTO users (username, password, category, email, first_name, last_name, is_staff, is_active, is_superuser, last_login, date_joined) VALUES ('Dmitryro', 'nu45edi1', 'admin
 ', 'dmitryro1@gmail.com', 'Dmitry', 'Roitman', TRUE, TRUE, TRUE, NOW(), NOW());
-
 INSERT INTO sites(host, port, ip, ga, date_added, date_last_crawled) VALUES ('lovehate.io', '8080', '127.0.0.1', 'UI-201031', NOW(), NOW());
 INSERT INTO sites(host, port, ip, ga, date_added, date_last_crawled) VALUES ('3dact.com', '8080', '127.0.0.1', 'UI-201032', NOW(), NOW());
-
+INSERT INTO pages(name, meta, headers, site_id) VALUES ('home', 'meta', 'headers', 1);
+INSERT INTO pages(name, meta, headers, site_id) VALUES ('blog', 'meta', 'headers', 1);
+INSERT INTO forms(action, form_id, name, method, page_id) VALUES ('/send', 'sampleform', 'sampleform', 'POST', 1);
+INSERT INTO forms(action, form_id, name, method, page_id) VALUES ('/send', 'anotherform', 'anotherform', 'POST', 1);
+INSERT INTO formfields(field_id, field_name, field_value, field_type, field_placeholder, form_id) VALUES ('read_field', 'read_field', '', 'hidden', 'Initial Text', 1);
+INSERT INTO actions (is_running, profile_key, name, last_run, form_id, field_id) VALUES (FALSE, 'GX-20101', 'scan', NOW(), 1, 1);
 INSERT INTO states (code, name) VALUES ('AL', 'Alabama');
 INSERT INTO states (code, name) VALUES ('AK', 'Alaska');
 INSERT INTO states (code, name) VALUES ('AZ', 'Arizona');

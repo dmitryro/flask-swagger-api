@@ -19,23 +19,29 @@ class Action(Base):
     name = Column(String(256), unique=False)
     is_running =  Column(Boolean, unique=False)
     last_run = Column(DateTime(timezone=True), server_default=func.now())
+    form_id = Column(Integer, ForeignKey("forms.id"), unique=False, nullable=True)
+    field_id = Column(Integer, ForeignKey("formfields.id"), unique=False, nullable=True)
 
     __tablename__ = "actions"
 
     def __init__(self, profile_key=None, name=None, 
+                 form_id =  None,
+                 form_field_id = None,
                  is_running = False, last_run=func.now()):
         self.profile_key = profile_key
         self.name = name
         self.is_running = is_running
         self.last_run = last_run
-
+        self.form_id = form_id
+        self.field_id = field_id
 
     def __repr__(self):
-        return "<Action {} {} {} {}>".format(self.profile_key,
-                                             self.name,
-                                             self.is_running,
-                                             self.last_run)
-
+        return "<Action {} {} {} {} {} {}>".format(self.profile_key,
+                                                   self.name,
+                                                   self.is_running,
+                                                   self.last_run,
+                                                   self.form_id,
+                                                   self.form_field_id)
 
 
 
