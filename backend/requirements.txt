@@ -1,5 +1,6 @@
 bs4
 Flask-API
+Flask-Migrate
 pylint
 httpie
 nose

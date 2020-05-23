@@ -9,27 +9,13 @@ from flasgger import Swagger
 from flask_api import status    # HTTP Status Codes
 from flask_cors import CORS, cross_origin
 
-
-from sqlalchemy import *
-from sqlalchemy.orm.session import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-
 from worker import celery
 import celery.states as states
 
 from models.states import State, StateSchema
+from utils.session import obtain_session
  
 states_blueprint = Blueprint('states', __name__, template_folder='templates')
-
-
-def obtain_session():
-    """ Get SQLAlchemy session """
-    engine = create_engine('postgresql+psycopg2://postgres:postgres@postgres:5432/postgres')
-    session = sessionmaker()
-    # Bind the sessionmaker to engine
-    session.configure(bind=engine)
-    return session()
-
 
 @states_blueprint.route("/states/<int:id>", methods=['GET']) 
 def get_state(id):
