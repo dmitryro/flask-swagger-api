@@ -2,9 +2,9 @@
 #### imports ####
 #################
 from datetime import datetime
-import logging
  
 from flask import Blueprint, Flask, json, jsonify, render_template, request, url_for, make_response
+from flask import current_app
 from flasgger import Swagger
 from flask_api import status    # HTTP Status Codes
 from flask_cors import CORS, cross_origin
@@ -16,6 +16,7 @@ from models.states import State, StateSchema
 from utils.session import obtain_session
  
 states_blueprint = Blueprint('states', __name__, template_folder='templates')
+logger = LocalProxy(lambda: current_app.logger)
 
 @states_blueprint.route("/states/<int:id>", methods=['GET']) 
 def get_state(id):
@@ -41,11 +42,17 @@ def get_state(id):
       404:
         description: State not found
     """
-    sess = obtain_session()
-    state = sess.query(State).get(id)
-    state_schema = StateSchema(many=False)
-    result = state_schema.dump(state)
-    return make_response(jsonify(result), status.HTTP_200_OK) 
+    try:
+        sess = obtain_session()
+        state = sess.query(State).get(id)
+        state_schema = StateSchema(many=False)
+        result = state_schema.dump(state)
+        logger.debug(f"Successfully read state {state.code} for id {id}")
+        return make_response(jsonify(result), status.HTTP_200_OK) 
+    except Exception as e:
+        logger.error(f"Error reading  state {id} - {e}")
+        result = {"result": "failure"}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)        
 
 
 @states_blueprint.route("/states", methods=['GET'])
@@ -76,11 +83,17 @@ def list_states():
             schema:
               $ref: '#/definitions/State'
     """
-    sess = obtain_session()
-    all_states = sess.query(State).all()
-    states_schema = StateSchema(many=True)
-    result = states_schema.dump(all_states)
-    return make_response(jsonify(result), status.HTTP_200_OK) 
+    try:
+        sess = obtain_session()
+        all_states = sess.query(State).all()
+        states_schema = StateSchema(many=True)
+        result = states_schema.dump(all_states)
+        logger.debug(f"Successfully read all the states")
+        return make_response(jsonify(result), status.HTTP_200_OK) 
+    except Exception as e:
+        logger.error(f"Failed reading states ...- {e}")
+        result = {"result": "failure"}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @states_blueprint.route("/states/<int:id>", methods=['DELETE']) 
@@ -102,7 +115,13 @@ def delete_state(id):
       204:
         description: State deleted
     """
-    return make_response('', status.HTTP_204_NO_CONTENT)
+    try:
+        logger.debug(f"Successfully deleted state {id}")
+        return make_response('', status.HTTP_204_NO_CONTENT)
+    except Exception as e:
+        logger.error(f"Failed deleting state {id} - {e}")
+        result = {"result": "failure"}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @states_blueprint.route("/states/<int:id>", methods=['PUT'])
@@ -189,8 +208,9 @@ def create_state():
         data = request.json
         name = data.get("name", "")
         code = data.get("code", "")
+        logger.debug(f"Successfully created state {name} - {code}")
+        return make_response(jsonify([]), status.HTTP_201_CREATED, {'Location':''})
     except Exception as e:
-        print(f"SOME SHIT HAPPENED IN CREATING STATE {e}")
-
-    return make_response(jsonify([]), status.HTTP_201_CREATED,
-                         {'Location': '' })
+        logger.error(f"Failed creating state - {e}")
+        result = {"result": "failure"}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)

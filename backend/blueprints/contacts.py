@@ -2,9 +2,10 @@
 #### imports ####
 #################
 from datetime import datetime
-import logging
+from werkzeug.local import LocalProxy
  
 from flask import Blueprint, Flask, jsonify, render_template, request, url_for, make_response
+from flask import current_app
 from flasgger import Swagger
 from flask_api import status    # HTTP Status Codes
 from flask_cors import CORS, cross_origin
@@ -14,7 +15,8 @@ import celery.states as states
 
 from models.contacts import Contact, ContactSchema
 from utils.session import obtain_session
- 
+
+logger = LocalProxy(lambda: current_app.logger) 
 contacts_blueprint = Blueprint('contacts', __name__, template_folder='templates')
 
 @contacts_blueprint.route("/contacts/<int:id>", methods=['GET']) 
