@@ -5,9 +5,11 @@ from datetime import datetime
 import logging
 
 from flask import Blueprint, Flask, json, jsonify, render_template, request, url_for, make_response
+from flask import current_app
 from flasgger import Swagger
 from flask_api import status    # HTTP Status Codes
 from flask_cors import CORS, cross_origin
+from werkzeug.local import LocalProxy
 
 from worker import celery
 import celery.states as states
@@ -19,8 +21,7 @@ from utils.session import obtain_session
 
 actions_blueprint = Blueprint('actions', __name__, template_folder='templates')
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger = LocalProxy(lambda: current_app.logger)
 
 
 @actions_blueprint.route("/actions/<int:id>", methods=['GET'])
@@ -60,10 +61,12 @@ def get_actions(id):
         result = action_schema.dump(action)
         result['form'] = form_result
         result['formfield'] = formfield_result
+        logger.debug(f"Successfully fetched action {id}")
+        return make_response(jsonify(result), status.HTTP_200_OK)
     except Exception as e:
+        logger.error(f"Failed reading action {id} - {e}")
         result = {"error": str(e)}
-
-    return make_response(jsonify(result), status.HTTP_200_OK)
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @actions_blueprint.route("/actions", methods=['GET'])
@@ -98,6 +101,7 @@ def list_actions():
     all_actions  = sess.query(Action).all()
     actions_schema = ActionSchema(many=True)
     result = actions_schema.dump(all_actions)
+    logger.debug(f"Successfully fetched all the actions.")
     return make_response(jsonify(result), status.HTTP_200_OK)
 
 
@@ -128,8 +132,11 @@ def delete_action(id):
             sess.delete(action)
             sess.commit()
             sess.flush()
+        logger.debug(f"Successfully deleted action {id}")
         result = {"result": "success"}
+        return make_response(jsonify(result), status.HTTP_204_NO_CONTENT)
     except Exception as e:
+        logger.error(f"Failed deleting action {id} - {e}")
         result = {"result": "failure"}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    return make_response(jsonify(result), status.HTTP_204_NO_CONTENT)

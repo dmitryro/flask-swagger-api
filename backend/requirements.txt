@@ -39,6 +39,7 @@ vine
 werkzeug
 msgpack-python==0.4.6
 python-dateutil==2.4.2
+python-dotenv
 psycopg2
 psycopg2-binary
 gunicorn==20.0.4

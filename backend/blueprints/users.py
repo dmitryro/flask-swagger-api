@@ -2,12 +2,12 @@
 #### imports ####
 #################
 from datetime import datetime
-import logging
-
 from flask import Blueprint, Flask, json, jsonify, render_template, request, url_for, make_response
+from flask import current_app
 from flasgger import Swagger
 from flask_api import status    # HTTP Status Codes
 from flask_cors import CORS, cross_origin
+from werkzeug.local import LocalProxy
 
 from worker import celery
 import celery.states as states
@@ -17,8 +17,7 @@ from utils.session import obtain_session
 
 users_blueprint = Blueprint('users', __name__, template_folder='templates')
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger = LocalProxy(lambda: current_app.logger)
 
 
 @users_blueprint.route("/users/<int:id>", methods=['GET'])
@@ -45,11 +44,17 @@ def get_users(id):
       404:
         description: User not found
     """
-    sess = obtain_session()
-    user = sess.query(User).get(id)
-    user_schema = UserSchema(many=False)
-    result = user_schema.dump(user)
-    return make_response(jsonify(result), status.HTTP_200_OK)
+    try:
+        sess = obtain_session()
+        logger.debug(f"Trying to read user {id}")
+        user = sess.query(User).get(id)
+        user_schema = UserSchema(many=False)
+        result = user_schema.dump(user)
+        return make_response(jsonify(result), status.HTTP_200_OK)
+    except Exception as e:
+        logger.error(f"Error reading the user {id} - {e}")
+        result = {"error": str(e)}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @users_blueprint.route("/users", methods=['GET'])
@@ -116,15 +121,21 @@ def delete_user(id):
       204:
         description: User deleted
     """
-    sess = obtain_session()
-    user = sess.query(User).get(id)
+    try:
+        sess = obtain_session()
+        user = sess.query(User).get(id)
 
-    if user:
-        sess.delete(user)
-        sess.commit()
+        if user:
+            sess.delete(user)
+            sess.commit()
 
-    result = {"result": "success"}
-    return make_response(jsonify(result), status.HTTP_204_NO_CONTENT)
+        result = {"result": "success"}
+        logger.debug(f"Successfully deleted user {id}")
+        return make_response(jsonify(result),  status.HTTP_200_OK)
+    except Exception as e:
+        logger.error(f"Error deleting user {id} - {e}")
+        result = {"error": str(e)}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @users_blueprint.route("/users/<int:id>", methods=['PUT'])
@@ -177,25 +188,31 @@ def update_user(id):
         description: Bad Request (the posted data was not valid)
     """
     data = request.json
-    print(f"USER ID HERE WAS {id}")
 
     sess = obtain_session()
-    user = sess.query(User).get(id)
 
-    if not user:
-        raise NotFound("User with id '{}' was not found.".format(id))
+    try:
+        user = sess.query(User).get(id)
 
-    user.password = data.get('password', user.password)
-    user.bio = data.get('bio', user.bio)
-    user.email = data.get('email', user.email)
-    user.first_name = data.get('first_name', user.first_name)
-    user.last_name = data.get('last_name', user.last_name)
-    user.username = data.get('username', user.username)
-    sess.commit()
+        if not user:
+            raise NotFound("User with id '{}' was not found.".format(id))
 
-    user_schema = UserSchema(many=False)
-    result = user_schema.dump(user)
-    return make_response(jsonify(result), status.HTTP_200_OK)
+        user.password = data.get('password', user.password)
+        user.bio = data.get('bio', user.bio)
+        user.email = data.get('email', user.email)
+        user.first_name = data.get('first_name', user.first_name)
+        user.last_name = data.get('last_name', user.last_name)
+        user.username = data.get('username', user.username)
+        sess.commit()
+
+        user_schema = UserSchema(many=False)
+        result = user_schema.dump(user)
+        logger.debug(f"Successfully updated user {id}")
+        return make_response(jsonify(result),  status.HTTP_200_OK)
+    except Exception as e:
+        logger.error(f"Error updading user {id} - {e}")
+        result = {"error": str(e)}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @users_blueprint.route("/users", methods=['POST'])
@@ -245,9 +262,7 @@ def create_user():
         description: Bad Request (the posted data was not valid)
     """
     try:
-        print(f"===================> REQUEST WAS {request}")
         data = request.json
-        print(f"===================> POST WAS {data}")
         first_name = data.get("first_name", "")
         last_name = data.get("last_name", "")
         username = data.get("account", "")
@@ -268,13 +283,13 @@ def create_user():
         s.add(user)
         s.commit()
         s.flush()
-        logging.info(f"Saved new user {first_name} {last_name}")
+        logger.debug(f"Saved new user {username} - {first_name} {last_name}")
+        sess = obtain_session()
+        all_users  = sess.query(User).all()
+        users_schema = UserSchema(many=True)
+        result = users_schema.dump(all_users)
+        return make_response(jsonify(result), status.HTTP_201_CREATED)
     except Exception as e:
-        print(f"Failed creating new user {e}")
-        logging.error(f"Failed saving user - {e}")
-
-    sess = obtain_session()
-    all_users  = sess.query(User).all()
-    users_schema = UserSchema(many=True)
-    result = users_schema.dump(all_users)
-    return make_response(jsonify(result), status.HTTP_201_CREATED)
+        logger.error(f"Failed saving user - {e}")
+        result = {"error": str(e)}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)

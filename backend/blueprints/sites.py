@@ -2,12 +2,12 @@
 #### imports ####
 #################
 from datetime import datetime
-import logging
-
 from flask import Blueprint, Flask, json, jsonify, render_template, request, url_for, make_response
+from flask import current_app
 from flasgger import Swagger
 from flask_api import status    # HTTP Status Codes
 from flask_cors import CORS, cross_origin
+from werkzeug.local import LocalProxy
 
 from worker import celery
 import celery.states as states
@@ -21,8 +21,7 @@ from utils.session import obtain_session
 
 sites_blueprint = Blueprint('sites', __name__, template_folder='templates')
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger = LocalProxy(lambda: current_app.logger)
 
 
 @sites_blueprint.route("/crawled/<int:id>", methods=['GET'])
@@ -51,7 +50,7 @@ def get_crawled(id):
     """
     try:
         s = obtain_session()
-        site = s.query(Site).filter(Site.id==id).first()
+        site = s.query(Site).get(id)
         host = site.host
         port = site.port
         pages = s.query(Page).filter(Page.site_id==id)
@@ -87,9 +86,10 @@ def get_crawled(id):
 
         result = site_schema.dump(site)
         result['pages'] = pages_result
-        logging.info(f"Saved new site {host} {port}")
+        logger.debug(f"Successfully read the crawled site {id}")
         return make_response(jsonify(result),  status.HTTP_200_OK)
     except Exception as e:
+        logger.error(f"Error reading the crawled site {id} - {e}")
         result = {"error": str(e)}
         return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
    
@@ -121,7 +121,7 @@ def get_elements(id):
     try:
         base_url = "https://lovehate.io"
         s = obtain_session()
-        site = s.query(Site).filter(Site.id==id).first()
+        site = s.query(Site).get(id)
         host = site.host
         port = site.port
         site_links = crawl(base_url, max_urls=20)
@@ -187,9 +187,10 @@ def get_elements(id):
 
         result = site_schema.dump(site)
         result['pages'] = pages_result
-        logging.info(f"Saved new site {host} {port}")
+        logger.debug(f"Successfully crawled the site {id}")
         return make_response(jsonify(result),  status.HTTP_200_OK)
     except Exception as e:
+        logger.error(f"Error crawling the site {id} - {e}")
         result = {"error": str(e)}
         return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -221,18 +222,22 @@ def get_sites(id):
         description: Site not found
     """
     try:
+        logger.debug(f"Reading the site {id} ...")
         sess = obtain_session()
-        site = sess.query(Site).filter(Site.id==id).first()
+        site = sess.query(Site).get(id)
+        logger.debug(f"SITE WAS ----------> {site}")
         pages = sess.query(Page).filter(Page.site_id==site.id)
         page_schema = PageSchema(many=True)
         site_schema = SiteSchema(many=False)
         pages_result = page_schema.dump(pages)
         result = site_schema.dump(site)
         result['pages'] = pages_result
+        return make_response(jsonify(result), status.HTTP_200_OK)
     except Exception as e:
+        logger.error(f"Error reading the site {id} - {e}")
         result = {"error": str(e)}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    return make_response(jsonify(result), status.HTTP_200_OK)
 
 
 
@@ -292,12 +297,13 @@ def create_site():
 
         site_schema = SiteSchema(many=False)
         result = site_schema.dump(site)
-        logging.info(f"Saved new site {host} {port}")
+        logger.debug(f"Saved new site {host} {port}")
         return make_response(jsonify(result),  status.HTTP_201_CREATED)
     except Exception as e:
-        print(f"Failed saving site - {e}")
+        logger.error(f"Failed saving site - {e}")
+        result = {"result": "failure"}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    return make_response(jsonify(l), status.HTTP_201_CREATED)
 
 
 @sites_blueprint.route("/sites", methods=['GET'])
@@ -328,6 +334,7 @@ def list_sites():
             schema:
               $ref: '#/definitions/Site'
     """
+    logger.debug("Reading the list of all the sites ...")
     sess = obtain_session()
     all_sites  = sess.query(Site).all()
     sites_schema = SiteSchema(many=True)
@@ -359,6 +366,7 @@ def get_pages(site_id):
       404:
         description: Site not found
     """
+    logger.debug(f"Reading the list of pages for site id {site_id}...")
     sess = obtain_session()
     pages = sess.query(Page).filter_by(site_id=site_id)
     page_schema = PageSchema(many=True)
@@ -400,6 +408,7 @@ def list_pages():
             schema:
               $ref: '#/definitions/Page'
     """
+    logger.debug("Reading the list of all  pages ...")
     sess = obtain_session()
     all_pages  = sess.query(Page).all()
     pages_schema = PageSchema(many=True)
@@ -428,17 +437,19 @@ def delete_site(id):
     """
     try:
         sess = obtain_session()
-        site = sess.query(Site).filter(Site.id==id).first()
+        site = sess.query(Site).get(id)
+        logger.debug(f"Deleting site {id} ...")
 
         if site:
             sess.delete(site)
             sess.commit()
             sess.flush()
         result = {"result": "success"}
+        return make_response(jsonify(result), status.HTTP_204_NO_CONTENT)
     except Exception as e:
+        logger.error(f"Error deleting the site {id} - {e}")
         result = {"result": "failure"}
-
-    return make_response(jsonify(result), status.HTTP_204_NO_CONTENT)
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @sites_blueprint.route("/forms", methods=['GET'])
@@ -481,6 +492,7 @@ def list_forms():
             schema:
               $ref: '#/definitions/Form'
     """
+    logger.debug("Reading the list of forms ...")
     sess = obtain_session()
     all_forms = sess.query(Form).all()
     forms_schema = FormSchema(many=True)
@@ -512,8 +524,15 @@ def get_forms(page_id):
       404:
         description: Page not found
     """
-    sess = obtain_session()
-    forms = sess.query(Form).filter_by(page_id=page_id)
-    form_schema = FormSchema(many=True)
-    result = form_schema.dump(forms)
-    return make_response(jsonify(result), status.HTTP_200_OK)
+    try:
+        logger.debug(f"Reading the list of forms for page {page_id} ...")
+        sess = obtain_session()
+        forms = sess.query(Form).filter_by(page_id=page_id)
+        form_schema = FormSchema(many=True)
+        result = form_schema.dump(forms)
+        return make_response(jsonify(result), status.HTTP_200_OK)
+    except Exception as e:
+        logger.error(f"Error reading forms for page {page_id} - {e}")
+        result = {"result": "failure"}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
+

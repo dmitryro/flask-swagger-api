@@ -14,9 +14,13 @@
 
 import os
 from flask import Flask, jsonify, request, url_for, make_response
+from flask.logging import default_handler
 from flasgger import Swagger
 from flask_api import status    # HTTP Status Codes
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from logging.config import dictConfig
 from werkzeug.exceptions import NotFound
 from blueprints.users import users_blueprint
 from blueprints.contacts import contacts_blueprint
@@ -27,6 +31,9 @@ from blueprints.actions import actions_blueprint
 # Pull options from environment
 debug = (os.getenv('DEBUG', 'False') == 'True')
 port = os.getenv('PORT', '5000')
+database_url = os.getenv('DATABASE_URL', 'postgresql+psycopg2://postgres:postgres@postgres:5432/postgres')
+sqlalchemy_notifications = (os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS', 'False') == 'True')
+
 
 def create_app():
     # Initialize Flask
@@ -36,7 +43,8 @@ def create_app():
     app.register_blueprint(states_blueprint)
     app.register_blueprint(sites_blueprint)
     app.register_blueprint(actions_blueprint)
-
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = sqlalchemy_notifications
     # Configure Swagger before initilaizing it
     app.config['SWAGGER'] = {
         "swagger_version": "2.0",
@@ -56,6 +64,9 @@ app = create_app()
 # Initialize Swagger after configuring it
 Swagger(app)
 CORS(app)
+
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 ######################################################################
 # ERROR Handling

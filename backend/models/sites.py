@@ -75,7 +75,7 @@ class Site(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     host = Column(String(1256), unique=False)
-    port = Column(Integer, primary_key=True)
+    port = Column(Integer, default=80)
     ip = Column(String(256), unique=True)
     ga = Column(String(50), unique=False, nullable=True)
     date_added = Column(DateTime(timezone=True),
