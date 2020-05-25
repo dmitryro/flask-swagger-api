@@ -170,6 +170,45 @@ CREATE TABLE form_formfield_link (
         FOREIGN KEY(form_id) REFERENCES forms(id) ON DELETE CASCADE
 );
 
+CREATE SEQUENCE logtype_id_seq;
+
+CREATE TABLE logtypes (
+        id integer NOT NULL DEFAULT nextval('logtype_id_seq') UNIQUE,  
+        type varchar(256) NOT NULL,
+        code varchar(20) NOT NULL
+);
+
+CREATE SEQUENCE logentry_id_seq;
+
+CREATE TYPE log_level AS ENUM (
+  'LOW', 
+  'MILD',
+  'MEDIUM',
+  'ELEVATED', 
+  'HIGH',
+  'DANGER',
+  'SEVERE',
+  'DISASTER');
+
+CREATE TABLE logentries (
+        id integer NOT NULL DEFAULT nextval('logentry_id_seq'),
+        level log_level NOT NULL,
+        recorded_at date NOT NULL,
+        header varchar(200),
+        body varchar(1500) NOT NULL,
+        type_id integer NOT NULL,
+        prifle_key varchar(30) NOT NULL,
+        action_id integer,
+        FOREIGN KEY(type_id) REFERENCES logtypes(id) ON DELETE CASCADE,
+        FOREIGN KEY(type_id) REFERENCES logtypes(id) ON DELETE CASCADE
+);
+
+ALTER SEQUENCE logentry_id_seq
+OWNED BY logentries.id;
+
+ALTER SEQUENCE logtype_id_seq
+OWNED BY logtypes.id;
+
 ALTER SEQUENCE script_id_seq
 OWNED BY scripts.id;
 

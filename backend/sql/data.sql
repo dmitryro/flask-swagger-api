@@ -1,5 +1,9 @@
 INSERT INTO users (username, password, category, email, first_name, last_name, is_staff, is_active, is_superuser, last_login, date_joined) VALUES('Machiavelli', 'covid1919', 'admin', 'alfonso@gmail.com', 'Nicollo', 'Machiavelli', TRUE, TRUE, TRUE, NOW(), NOW());
 INSERT INTO users (username, password, category, email, first_name, last_name, is_staff, is_active, is_superuser, last_login, date_joined) VALUES('Dmitryro', 'covid1919', 'admin', 'petro@gmail.com', 'Dmitry', 'Roitman', TRUE, TRUE, TRUE, NOW(), NOW());
+INSERT INTO logtypes(code, type) VALUES ('AL', 'ACTION LOG');
+INSERT INTO logtypes(code, type) VALUES ('CL', 'CHAIN LOG');
+INSERT INTO logtypes(code, type) VALUES ('FL', 'FORM LOG');
+INSERT INTO logtypes(code, type) VALUES ('EL', 'EVENT LOG');
 INSERT INTO sites(host, port, ip, ga, date_added, date_last_crawled) VALUES('heap.io', '8080', '127.0.0.1', 'UI-201031', NOW(), NOW());
 INSERT INTO sites(host, port, ip, ga, date_added, date_last_crawled) VALUES('3dact.com', '8080', '127.0.0.1', 'UI-201032', NOW(), NOW());
 INSERT INTO pages(name, meta, headers, site_id) VALUES('home', 'meta', 'headers', 1);

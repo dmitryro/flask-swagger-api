@@ -1,3 +1,4 @@
+import enum
 from flask import Flask
 from marshmallow_sqlalchemy import ModelSchema
 from flask_marshmallow import Marshmallow
@@ -14,20 +15,65 @@ Base = declarative_base()
 app = Flask(__name__, instance_relative_config=True)
 ma = Marshmallow(app)
 
-#rule_association_table = Table('action_rule_link', Base.metadata,
-#    Column('rule_id', Integer, ForeignKey('rules.id')),
-#    Column('action_id', Integer, ForeignKey('actions.id'))
-#)
 
-#form_association_table = Table('action_form_link', Base.metadata,
-#    Column('form_id', Integer, ForeignKey('forms.id')),
-#    Column('action_id', Integer, ForeignKey('actions.id'))    
-#)
+class LogEnum(enum.Enum):
+    low = 'LOW' 
+    mild = 'MILD'
+    medium = 'MEDIUM' 
+    elevated = 'ELEVATED'
+    high = 'HIGH'
+    danger = 'DANGER'
+    severe = 'SEVERE'
+    disaster = 'DISASTER'
 
-#field_association_table = Table('action_formfield_link', Base.metadata,
-#    Column('formfield_id', Integer, ForeignKey('formfields.id')),
-#    Column('action_id', Integer, ForeignKey('actions.id'))
-#)
+
+class LogType(Base):
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    type = Column(String(20), unique=True)
+    code = Column(String(20), unique=True)
+
+    __tablename__ = "logtypes"
+
+    def __init__(self, type=None, code=None):
+        self.code = code
+        self.type = type
+
+    def __repr__(self):
+        return "<LogType {} {}>".format(self.code,
+                                        self.type)
+
+
+class LogEntry(Base):
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    level = Column(Enum(LogEnum)) 
+    recorded_at = Column(DateTime(timezone=True), server_default=func.now())
+    header = Column(String(300), unique=False)
+    body = Column(String(1000), unique=False) 
+    type_id = Column(Integer, ForeignKey("logtypes.id"), unique=False, nullable=False)
+    profile_key = Column(String(100))
+    action_id = Column(Integer, ForeignKey("actions.id"), unique=False, nullable=True)  
+
+    __tablename__ = "logentries"
+
+
+    def __init__(self, level=None, body=None, recorded_at=func.now(), type_id=None, 
+                 profile_key=None, action_id=None):
+        self.level = level
+        self.recorded_at = recorded_at
+        self.type_id = type_id
+        self.body = body
+        self.action_id = action_id
+        self.profile_key = profile_key
+
+
+    def __repr__(self):
+        return "<LogEntry {} {} {} {}>".format(self.level,
+                                               self.recorded_at,
+                                               self.body,
+                                               self.type_id,
+                                               self.profile_key,
+                                               self.action_id)
+
 
 class FormField(Base):
     """ Form Field """
