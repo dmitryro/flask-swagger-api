@@ -27,44 +27,59 @@ actions_blueprint = Blueprint('actions', __name__, template_folder='templates')
 
 logger = LocalProxy(lambda: current_app.logger)
 
+
 @actions_blueprint.route("/scripts", methods=['POST'])
 def generate_script():
     """
-    Generate a script for key
-    This endpoint will return a Action based on it's id
+    Creates a Script
+    This endpoint will create a Script based on profile key.
     ---
     tags:
-      - Scripts
+      - Script
+    consumes:
+      - application/json
     produces:
       - application/json
     parameters:
-      - name: key
-        in: path
-        description: key to use
-        type: string
+      - in: body
+        name: body
         required: true
+        schema:
+          id: script_data
+          required:
+            - profile_key
+          properties:
+            profile_key:
+              type: string
+              description: Profile Key
     responses:
-      200:
-        description: Script returned
+      201:
+        description: Script created
         schema:
           $ref: '#/definitions/Script'
-      404:
-        description: Script not found
+      400:
+        description: Bad Request (the posted data was not valid)
     """
     try:
         data = request.json
-        key = data.get("key", "")
-        
+        profile_key = data.get("profile_key", None)
+
+        if not profile_key:
+            raise NotFound("Product key '{profile_key}' was not found.")
+
         sess = obtain_session()
 
-        action = sess.query(Action).filter(Action.profile_key==key).first()
+        #action = sess.query(Action).filter(Action.profile_key==key).first()
 
-        if not action:
-            raise NotFound("Product key '{key}' was not found.")
+        #if not action:
+        #    raise NotFound("Product key '{key}' was not found.")
 
-        code = f"<script>let key = {key};</script>"
+        code = ("<script>", f"let key = {profile_key};", 
+                "(function run() {})();"
+                "</script>")
 
-        sc = Script(code=code,
+        sc = Script(profile_key=profile_key,
+                    code="".join(code),
                     version=1.0,
                     created_at=func.now())
         sess.add(sc)
@@ -72,7 +87,7 @@ def generate_script():
 
         script_schema = ScriptSchema(many=False)
         result = script_schema.dump(sc)
-        logger.debug(f"Successfully fetched action {key}")
+        logger.debug(f"Successfully generated script for {profile_key}")
         return make_response(jsonify(result), status.HTTP_200_OK)
     except Exception as e:
         result = {"error": str(e)}

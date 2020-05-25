@@ -1,5 +1,8 @@
+aiodns
+aiohttp
 alembic
 bs4
+cchardet
 pylint
 httpie
 nose

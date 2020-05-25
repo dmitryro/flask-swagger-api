@@ -162,11 +162,11 @@ class Script(Base):
     def __init__(self, code=None,
                        version=1.0,
                        profile_key=None,
-                       time_created=func.now()):
+                       created_at=func.now()):
         self.code = code
         self.version = version
         self.profile_key = profile_key
-        self.time_created = time_created
+        self.created_at = created_at
 
     def __repr__(seld):
         return f"<Script {self.code} {self.version} {self.profile_key} {self.time_created}>"
