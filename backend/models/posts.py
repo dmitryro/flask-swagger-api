@@ -13,6 +13,7 @@
 # limitations under the License.
 from flask import url_for
 
+
 class Post(object):
     __data = []
     __index = 0

@@ -7,68 +7,12 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import *
+from sqlalchemy.ext.declarative import declarative_base
+from models.actions import FormSchema, FormFieldSchema
 
-app = Flask(__name__, instance_relative_config=True)
 Base = declarative_base()
+app = Flask(__name__, instance_relative_config=True)
 ma = Marshmallow(app)
-
-class FormField(Base):
-    """ Form Field """
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    field_id = Column(String(256), unique=False)
-    field_name = Column(String(256), unique=False)
-    field_type = Column(String(256), unique=False)
-    field_placeholder = Column(String(256), unique=False)
-    field_value = Column(String(2256), unique=False)
-    form_id = Column(Integer, ForeignKey("forms.id"), unique=False, nullable=False)
-    
-    __tablename__ = "formfields"
-
-    def __init__(self, field_id=None, field_name=None, field_value=None, 
-                form_id=None, field_type=None, field_placeholder=None):
-        self.field_id = field_id 
-        self.field_name = field_name
-        self.field_value = field_value
-        self.form_id = form_id
-        self.field_type = field_type
-        self.field_placeholder = field_placeholder
-
-    def __repr__(self):
-        return "<FormField {} {} {}>".format(self.field_id,
-                                             self.field_name,
-                                             self.field_valuer)
-
-
-class Form(Base):
-    """ Form """
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    form_id = Column(String(256), unique=False)
-    name = Column(String(256), unique=False)
-    method = Column(String(256), unique=False)
-    body = Column(String(2256), unique=False)
-    page_id = Column(Integer, ForeignKey("pages.id"), unique=False, nullable=False)
-    action = Column(String(2256), unique=False, nullable=True)
-
-    __tablename__ = "forms"
-
-    def __init__(self, form_id=None, 
-                       name=None, 
-                       method=None, 
-                       action=None,
-                       body=None,
-                       page_id=None):
-        self.action = action
-        self.name = name
-        self.body = body
-        self.method = method
-        self.form_id = form_id
-        self.page_id = page_id
-
-    def __repr__(self):
-        return "<Form {} {}>".format(self.name,
-                                     self.body)
-
-
 
 class Site(Base):
     """ The site record to save in Postgres """
@@ -129,20 +73,6 @@ class Page(Base):
                                               self.meta,
                                               self.headers,
                                               self.site_id)
-
-class FormFieldSchema(ModelSchema):
-    """ Use this schema to serialize formfields """
-    class Meta:
-        fields = ("id", "field_id", "field_nname", "field_type", 
-                  "field_placeholder", "field_value", "form_id",)
-
-
-class FormSchema(ModelSchema):
-    """ Use this schema to serialize forms """
-    fields = fields.Nested(FormFieldSchema)
-
-    class Meta:
-        fields = ("id", "form_id", "name", "method", "body", "page_id", "action",)
 
 
 class PageSchema(ModelSchema):

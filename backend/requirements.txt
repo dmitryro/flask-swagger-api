@@ -1,6 +1,5 @@
+alembic
 bs4
-Flask-API
-Flask-Migrate
 pylint
 httpie
 nose
@@ -11,11 +10,15 @@ codecov
 Babel
 billiard
 celery
+cerberus
 click
 cffi
 Flask
+Flask-Alembic
+Flask-API
 Flask-Migrate
 Flask-Social
+Flask-Script 
 flask-bootstrap
 flask-marshmallow
 flask-paginate
@@ -34,6 +37,7 @@ Jinja2
 kombu
 MarkupSafe
 pytz
+pyjwt
 redis
 vine
 werkzeug

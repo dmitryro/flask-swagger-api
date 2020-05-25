@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime
 import os
 from flask import Flask, jsonify, request, url_for, make_response
 from flask.logging import default_handler
@@ -20,6 +21,7 @@ from flask_api import status    # HTTP Status Codes
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_alembic import Alembic
 from logging.config import dictConfig
 from werkzeug.exceptions import NotFound
 from blueprints.users import users_blueprint
@@ -60,6 +62,7 @@ def create_app():
     }
     return app
 
+alembic = Alembic()
 app = create_app()
 # Initialize Swagger after configuring it
 Swagger(app)
@@ -67,6 +70,8 @@ CORS(app)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+alembic.init_app(app)
+alembic.rev_id = lambda: datetime.utcnow().timestamp()
 
 ######################################################################
 # ERROR Handling

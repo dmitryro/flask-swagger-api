@@ -7,8 +7,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import *
 from flask_marshmallow import Marshmallow
 
-app = Flask(__name__, instance_relative_config=True)
 Base = declarative_base()
+app = Flask(__name__, instance_relative_config=True)
 ma = Marshmallow(app)
 
 

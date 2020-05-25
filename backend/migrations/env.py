@@ -1,10 +1,21 @@
+import logging
 from logging.config import fileConfig
-
+from sqlalchemy import create_engine
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-import os
+from sqlalchemy import engine_from_config, pool, MetaData, Table
+from sqlalchemy.ext.declarative import declarative_base
+import pathlib
 from alembic import context
+import sys
+import os
 
+current_path = os.path.dirname(os.path.abspath(__file__))
+
+ROOT_PATH = os.path.join(current_path, '..')
+sys.path.append(ROOT_PATH)
+
+meta_list = list()
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
@@ -12,17 +23,62 @@ config = context.config
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
+# add your model's MetaData object here
+# for 'autogenerate' support
+# from myapp import mymodel
+# target_metadata = mymodel.Base.metadata
+# other values from the config, defined by the needs of env.py,
+# can be acquired:
+# my_important_option = config.get_main_option("my_important_option")
+# ... etc.
+
+
+# Interpret the config file for Python logging.
+# This line sets up loggers basically.
+logger = logging.getLogger('alembic.env')
 
 # add your model's MetaData object here
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = None
+def combine_metadata(*args):
+    m = MetaData()
+    for metadata_temp in args:
+        for metadata in metadata_temp:
+            for t in metadata.tables.values():
+                t.tometadata(m)
+    return m
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
-# my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+
+#target_metadata = combine_metadata(meta_list)
+#target_metadata = combine_metadata(meta_list)
+
+#target_metadata = combine_metadata(meta_list)
+
+#target_metadata = current_app.extensions['migrate'].db.metadata
+
+for file in [file for file in
+os.listdir(str(pathlib.Path(__file__).parent.parent) + "/models/") if file !=
+'__pycache__' and file != '__init__.py']:
+    p, m = file.rsplit('.', 1)
+    module_in_file = __import__("models." + str(p))
+    files_module_in_directory = getattr(module_in_file, p)
+
+    new_model = []
+    for item in files_module_in_directory.__dict__:
+        try:
+            files_module = getattr(files_module_in_directory, item)
+            if isinstance(files_module, Table) is True:
+                meta_list.append(files_module.metadata)
+        except Exception as e:
+            print(e)
+
+target_metadata = combine_metadata(meta_list)
+
+def get_url():
+    url = config.get_main_option("sqlalchemy.url")
+    return url
+
 
 
 def run_migrations_offline():
@@ -38,7 +94,7 @@ def run_migrations_offline():
 
     """
     #url = config.get_main_option("sqlalchemy.url")
-    url = os.getenv("DB_CONNECTION_STRING")
+    url = get_url()
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -50,6 +106,7 @@ def run_migrations_offline():
         context.run_migrations()
 
 
+
 def run_migrations_online():
     """Run migrations in 'online' mode.
 
@@ -57,12 +114,7 @@ def run_migrations_online():
     and associate a connection with the context.
 
     """
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
-
+    connectable = create_engine(get_url())
     with connectable.connect() as connection:
         context.configure(
             connection=connection, target_metadata=target_metadata

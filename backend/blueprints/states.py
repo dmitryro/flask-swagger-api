@@ -8,6 +8,7 @@ from flask import current_app
 from flasgger import Swagger
 from flask_api import status    # HTTP Status Codes
 from flask_cors import CORS, cross_origin
+from werkzeug.local import LocalProxy
 
 from worker import celery
 import celery.states as states

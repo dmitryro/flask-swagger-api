@@ -1,0 +1,24 @@
+#!/bin/sh
+### Check if a directory does not exist ###
+if [ -d "/api/migrations" ] 
+then
+   rm -rf /api/migrations
+fi
+if [ ! -d "/api/migrations" ] 
+then
+    echo "Directory /api/migrations DOES NOT exists." 
+    exec python manage.py db init
+    #exit 9999 # die with error code 9999
+fi
+
+cp /api/config/alembic.ini /api/migrations/alembic.ini
+cp /api/config/env.py /api/migrations/env.py
+exec python manage.py db
+
+#
+#exec python manage.py db stamp head
+#exec python manage.py db current
+#exec python manage.py db migrate
+#exec python manage.py db upgrade
+exec gunicorn --bind 0.0.0.0:5000 --workers 5 app:app --log-level debug --timeout 120
+

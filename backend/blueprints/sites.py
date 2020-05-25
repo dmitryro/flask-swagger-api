@@ -14,8 +14,8 @@ import celery.states as states
 
 from models.sites import Site, SiteSchema
 from models.sites import Page, PageSchema
-from models.sites import Form, FormSchema
-from models.sites import FormField, FormFieldSchema
+from models.actions import Form, FormSchema
+from models.actions import FormField, FormFieldSchema
 from utils.spide import crawl, internal_urls, get_all_page_forms
 from utils.session import obtain_session
 

@@ -1,6 +1,7 @@
 #################
 #### imports ####
 #################
+from sqlalchemy.sql import func
 from datetime import datetime
 import logging
 
@@ -14,15 +15,69 @@ from werkzeug.local import LocalProxy
 from worker import celery
 import celery.states as states
 
-from models.actions import Action, ActionSchema
-from models.sites import Form, FormSchema
-from models.sites import FormField, FormFieldSchema
+from models.actions import Script, ScriptSchema
+from models.actions import Rule, RuleSchema
+from models.actions import Action, ActionRuleLink, ActionSchema
+from models.actions import FormFieldLink, FormLink
+from models.actions import Form, FormSchema
+from models.actions import FormField, FormFieldSchema
 from utils.session import obtain_session
 
 actions_blueprint = Blueprint('actions', __name__, template_folder='templates')
 
 logger = LocalProxy(lambda: current_app.logger)
 
+@actions_blueprint.route("/scripts", methods=['POST'])
+def generate_script():
+    """
+    Generate a script for key
+    This endpoint will return a Action based on it's id
+    ---
+    tags:
+      - Scripts
+    produces:
+      - application/json
+    parameters:
+      - name: key
+        in: path
+        description: key to use
+        type: string
+        required: true
+    responses:
+      200:
+        description: Script returned
+        schema:
+          $ref: '#/definitions/Script'
+      404:
+        description: Script not found
+    """
+    try:
+        data = request.json
+        key = data.get("key", "")
+        
+        sess = obtain_session()
+
+        action = sess.query(Action).filter(Action.profile_key==key).first()
+
+        if not action:
+            raise NotFound("Product key '{key}' was not found.")
+
+        code = f"<script>let key = {key};</script>"
+
+        sc = Script(code=code,
+                    version=1.0,
+                    created_at=func.now())
+        sess.add(sc)
+        sess.commit()
+
+        script_schema = ScriptSchema(many=False)
+        result = script_schema.dump(sc)
+        logger.debug(f"Successfully fetched action {key}")
+        return make_response(jsonify(result), status.HTTP_200_OK)
+    except Exception as e:
+        result = {"error": str(e)}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 
 @actions_blueprint.route("/actions/<int:id>", methods=['GET'])
 def get_actions(id):
@@ -51,16 +106,26 @@ def get_actions(id):
     try:
         sess = obtain_session()
         action = sess.query(Action).filter(Action.id==id).first()
-        form = sess.query(Form).filter(Action.form_id==action.form_id).first()
-        formfield = sess.query(FormField).filter(Action.field_id==action.field_id).first()
+        forms = sess.query(Form).join(Form.forms).filter_by(action_id=action.id).all() 
+        #formfields = sess.query(FormField).join(Form.formfields).filter_by(action_id=action.id).all()
+        rules = action.rules #sess.query(Action).filter(Action.id==id).all() #.rules.any(action_id=action.id)).all() 
+        forms = action.forms
+        formfields = action.formfields        
+        #sess.query(Rule).join(ActionLink.rules).filter_by(action_id=action.id).all()
         action_schema = ActionSchema(many=False)
-        form_schema = FormFieldSchema(many=False)
-        formfield_schema = FormFieldSchema(many=False)
-        form_result = form_schema.dump(form)
-        formfield_result = formfield_schema.dump(formfield)
+        form_schema = FormFieldSchema(many=True)
+        formfield_schema = FormFieldSchema(many=True)
+        rules_schema = RuleSchema(many=True)
+        
+        forms_result = form_schema.dump(forms)
+        formfields_result = formfield_schema.dump(formfields)
+        rules_result = rules_schema.dump(rules)
+
         result = action_schema.dump(action)
-        result['form'] = form_result
-        result['formfield'] = formfield_result
+        result['forms'] = forms_result
+        result['formfields'] = formfields_result
+        result['rules'] = rules_result
+
         logger.debug(f"Successfully fetched action {id}")
         return make_response(jsonify(result), status.HTTP_200_OK)
     except Exception as e:
@@ -101,6 +166,16 @@ def list_actions():
     all_actions  = sess.query(Action).all()
     actions_schema = ActionSchema(many=True)
     result = actions_schema.dump(all_actions)
+
+    forms_schema = FormFieldSchema(many=True)
+    formfields_schema = FormFieldSchema(many=True)
+    rules_schema = RuleSchema(many=True)
+
+    for i, action in enumerate(all_actions):
+        result[i]['rules'] = rules_schema.dump(action.rules) 
+        result[i]['forms'] = forms_schema.dump(action.forms)
+        result[i]['formfields'] = formfields_schema.dump(action.formfields)
+
     logger.debug(f"Successfully fetched all the actions.")
     return make_response(jsonify(result), status.HTTP_200_OK)
 

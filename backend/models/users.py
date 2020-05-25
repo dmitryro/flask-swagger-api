@@ -3,12 +3,12 @@ from marshmallow_sqlalchemy import ModelSchema
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import *
 from flask_marshmallow import Marshmallow
+from sqlalchemy.ext.declarative import declarative_base
 
-app = Flask(__name__, instance_relative_config=True)
 Base = declarative_base()
+app = Flask(__name__, instance_relative_config=True)
 ma = Marshmallow(app)
 
 

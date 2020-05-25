@@ -33,7 +33,6 @@ CREATE TABLE users (
         date_joined date NOT NULL
     );
 
-
 CREATE SEQUENCE contact_id_seq;
 
 CREATE TABLE contacts (
@@ -90,6 +89,7 @@ CREATE TABLE forms (
         method varchar(256),
         body varchar(2256),
         page_id integer NOT NULL,
+        action_id integer,
         FOREIGN KEY(page_id) REFERENCES pages(id) ON DELETE CASCADE,
         UNIQUE(id)
     );
@@ -104,9 +104,20 @@ CREATE TABLE formfields (
         field_type varchar(256),
         field_placeholder varchar(256),
         form_id integer NOT NULL,
+        action_id integer,
         FOREIGN KEY(form_id) REFERENCES forms(id) ON DELETE CASCADE,
         UNIQUE(id)
     );
+
+CREATE SEQUENCE rule_id_seq;
+
+CREATE TABLE rules (
+        id integer NOT NULL DEFAULT nextval('rule_id_seq'),
+        is_active BOOLEAN DEFAULT TRUE,
+        name varchar(256) NOT NULL,
+        code varchar(256) NOT NULL,
+        UNIQUE(id)  
+);
 
 CREATE SEQUENCE action_id_seq;
 
@@ -116,12 +127,54 @@ CREATE TABLE actions (
         profile_key varchar(256) NOT NULL,
         name varchar(256) NOT NULL,
         last_run date NOT NULL,
-        form_id integer,
-        field_id integer,
-        FOREIGN KEY(form_id) REFERENCES forms(id) ON DELETE CASCADE,
-        FOREIGN KEY(field_id) REFERENCES formfields(id) ON DELETE CASCADE,
         UNIQUE(id)        
 );
+
+CREATE SEQUENCE script_id_seq;
+
+CREATE TABLE scripts (
+        id integer NOT NULL DEFAULT nextval('script_id_seq'),
+        profile_key varchar(256) NOT NULL,
+        version float DEFAULT 1.0,
+        code varchar(10000) NOT NULL,
+        created_at date NOT NULL,
+        UNIQUE(id)
+);
+
+
+CREATE TABLE action_rule_link (
+        rule_id integer NOT NULL,
+        action_id integer NOT NULL,
+        FOREIGN KEY(rule_id) REFERENCES rules(id) ON DELETE CASCADE,
+        FOREIGN KEY(action_id) REFERENCES actions(id) ON DELETE CASCADE
+);
+
+CREATE TABLE action_form_link (
+        form_id integer NOT NULL,
+        action_id integer NOT NULL,
+        FOREIGN KEY(form_id) REFERENCES forms(id) ON DELETE CASCADE,
+        FOREIGN KEY(action_id) REFERENCES actions(id) ON DELETE CASCADE        
+);
+
+CREATE TABLE action_formfield_link (
+        formfield_id integer NOT NULL,
+        action_id integer NOT NULL,
+        FOREIGN KEY(formfield_id) REFERENCES formfields(id) ON DELETE CASCADE,
+        FOREIGN KEY(action_id) REFERENCES actions(id) ON DELETE CASCADE
+);
+
+CREATE TABLE form_formfield_link (
+        formfield_id integer NOT NULL,
+        form_id integer NOT NULL,
+        FOREIGN KEY(formfield_id) REFERENCES formfields(id) ON DELETE CASCADE,
+        FOREIGN KEY(form_id) REFERENCES forms(id) ON DELETE CASCADE
+);
+
+ALTER SEQUENCE script_id_seq
+OWNED BY scripts.id;
+
+ALTER SEQUENCE rule_id_seq
+OWNED BY rules.id;
 
 ALTER SEQUENCE formfield_id_seq 
 OWNED BY formfields.id;
