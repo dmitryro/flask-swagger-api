@@ -114,6 +114,7 @@ CREATE SEQUENCE rule_id_seq;
 CREATE TABLE rules (
         id integer NOT NULL DEFAULT nextval('rule_id_seq'),
         is_active BOOLEAN DEFAULT TRUE,
+        severety varchar(30),
         name varchar(256) NOT NULL,
         code varchar(256) NOT NULL,
         UNIQUE(id)  
@@ -178,9 +179,18 @@ CREATE TABLE logtypes (
         code varchar(20) NOT NULL
 );
 
+CREATE TYPE importance as ENUM (
+    'LOW',
+    'MODERATE',
+    'MEDIUM',
+    'ELEVATED',
+    'HIGH',
+    'URGENT'
+);
+
 CREATE SEQUENCE logentry_id_seq;
 
-CREATE TYPE log_level AS ENUM (
+CREATE TYPE severety AS ENUM (
   'LOW', 
   'MILD',
   'MEDIUM',
@@ -190,18 +200,39 @@ CREATE TYPE log_level AS ENUM (
   'SEVERE',
   'DISASTER');
 
+CREATE SEQUENCE event_id_seq;
+
+CREATE TABLE events(
+       id integer NOT NULL DEFAULT nextval('event_id_seq') UNIQUE,
+       recorded_at date NOT NULL,
+       took_place_at date,
+       title varchar(200),
+       description varchar(1000),
+       importance varchar(30), 
+       severety varchar(30),
+       action_id integer,
+       field_id integer,
+       FOREIGN KEY(action_id) REFERENCES actions(id) ON DELETE CASCADE
+);
+
 CREATE TABLE logentries (
         id integer NOT NULL DEFAULT nextval('logentry_id_seq'),
-        level log_level NOT NULL,
+        severety varchar(30),
         recorded_at date NOT NULL,
         header varchar(200),
-        body varchar(1500) NOT NULL,
+        body varchar(1500),
         type_id integer NOT NULL,
-        prifle_key varchar(30) NOT NULL,
+        profile_key varchar(30) NOT NULL,
         action_id integer,
+        event_id integer,
+        FOREIGN KEY(event_id) REFERENCES events(id) ON DELETE CASCADE,
         FOREIGN KEY(type_id) REFERENCES logtypes(id) ON DELETE CASCADE,
-        FOREIGN KEY(type_id) REFERENCES logtypes(id) ON DELETE CASCADE
+        FOREIGN KEY(action_id) REFERENCES actions(id) ON DELETE CASCADE
 );
+
+
+ALTER SEQUENCE event_id_seq
+OWNED BY events.id;
 
 ALTER SEQUENCE logentry_id_seq
 OWNED BY logentries.id;

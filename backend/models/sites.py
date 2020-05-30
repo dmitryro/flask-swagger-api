@@ -56,7 +56,7 @@ class Page(Base):
     name = Column(String(256), unique=False)
     meta = Column(String(1256), unique=False)
     headers = Column(String(1256), unique=False)
-    site_id = Column(Integer, ForeignKey(Site.id), unique=True, nullable=False)
+    site_id = Column(Integer, ForeignKey(Site.id, ondelete='CASCADE'), unique=True, nullable=False)
 
     __tablename__ = "pages"
 

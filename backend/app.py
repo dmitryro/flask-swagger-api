@@ -18,7 +18,7 @@ from flask import Flask, jsonify, request, url_for, make_response
 from flask.logging import default_handler
 from flasgger import Swagger
 from flask_api import status    # HTTP Status Codes
-from flask_cors import CORS
+#from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_alembic import Alembic
@@ -66,7 +66,8 @@ alembic = Alembic()
 app = create_app()
 # Initialize Swagger after configuring it
 Swagger(app)
-CORS(app)
+#CORS(app)
+
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)

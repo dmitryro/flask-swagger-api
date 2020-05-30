@@ -16,7 +16,16 @@ app = Flask(__name__, instance_relative_config=True)
 ma = Marshmallow(app)
 
 
-class LogEnum(enum.Enum):
+class ImportanceEnum(enum.Enum):
+    low = 'LOW' 
+    moderate = 'MODERATE'
+    medium = 'MEDIUM' 
+    elevated = 'ELEVATED'
+    high = 'HIGH'
+    urgent = 'URGENT'
+
+
+class SeveretyEnum(enum.Enum):
     low = 'LOW' 
     mild = 'MILD'
     medium = 'MEDIUM' 
@@ -25,6 +34,7 @@ class LogEnum(enum.Enum):
     danger = 'DANGER'
     severe = 'SEVERE'
     disaster = 'DISASTER'
+
 
 
 class LogType(Base):
@@ -43,36 +53,6 @@ class LogType(Base):
                                         self.type)
 
 
-class LogEntry(Base):
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    level = Column(Enum(LogEnum)) 
-    recorded_at = Column(DateTime(timezone=True), server_default=func.now())
-    header = Column(String(300), unique=False)
-    body = Column(String(1000), unique=False) 
-    type_id = Column(Integer, ForeignKey("logtypes.id"), unique=False, nullable=False)
-    profile_key = Column(String(100))
-    action_id = Column(Integer, ForeignKey("actions.id"), unique=False, nullable=True)  
-
-    __tablename__ = "logentries"
-
-
-    def __init__(self, level=None, body=None, recorded_at=func.now(), type_id=None, 
-                 profile_key=None, action_id=None):
-        self.level = level
-        self.recorded_at = recorded_at
-        self.type_id = type_id
-        self.body = body
-        self.action_id = action_id
-        self.profile_key = profile_key
-
-
-    def __repr__(self):
-        return "<LogEntry {} {} {} {}>".format(self.level,
-                                               self.recorded_at,
-                                               self.body,
-                                               self.type_id,
-                                               self.profile_key,
-                                               self.action_id)
 
 
 class FormField(Base):
@@ -144,21 +124,25 @@ class Rule(Base):
     code = Column(String(256), unique=False)
     is_active = Column(Boolean, unique=False, default=True)
     actions = relationship("Action", secondary="action_rule_link")
+    severety = Column(String(30), unique=False, nullable=True)
 
     __tablename__ = "rules"
 
     def __init__(self,
                  name=None,
                  code=None,
+                 severety='medium',
                  is_active=True):
         self.name = name
         self.code = code
         self.is_active = is_active
+        self.severety = severety
 
     def __repr__(self):
-        return "<Rule {} {} {}>".format(self.code,
-                                        self.name,
-                                        self.is_active)
+        return "<Rule {} {} {} {}>".format(self.code,
+                                           self.name,
+                                           self.severety,
+                                           self.is_active)
 
 
 
@@ -193,6 +177,89 @@ class Action(Base):
                                                    self.last_run,
                                                    self.form_id,
                                                    self.form_field_id)
+
+
+class Event(Base):
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    recorded_at = Column(DateTime(timezone=True), server_default=func.now())
+    took_place_at = Column(DateTime(timezone=True), server_default=func.now())
+    severety = Column(String(30), nullable=False)
+    importance = Column(String(30), nullable=False)
+    description = Column(String(1000), unique=False)
+    title = Column(String(300), unique=False)
+    action_id = Column(Integer, ForeignKey('actions.id', ondelete='CASCADE'))
+    field_id = Column(Integer, ForeignKey("formfields.id", ondelete='CASCADE'), unique=False, nullable=True)
+    field = relationship("FormField")
+    action = relationship('Action')
+
+    __tablename__ = "events"
+
+    def __init__(self, title=None, description=None, 
+                 recorded_at=func.now(), took_place_at=func.now(),
+                 importance=None,
+                 severety=None,
+                 action_id=None,
+                 field_id=None):
+        self.took_place_at=took_place_at
+        self.recorded_at=recorded_at
+        self.importance=importance
+        self.description=description
+        self.title=title
+        self.severety=severety
+        self.action_id=action_id
+        self.field_id=field_id 
+
+    def __repr__(self):
+        return "<Event {} {} {} {} {}>".format(self.title,
+                                               self.description,
+                                               self.severety,
+                                               self.importance,
+                                               self.recorded_at)
+
+
+class LogEntry(Base):
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    severety = Column(String(30), nullable=True)
+    recorded_at = Column(DateTime(timezone=True), server_default=func.now())
+    header = Column(String(300), unique=False)
+    body = Column(String(1000), unique=False)
+    type_id = Column(Integer, ForeignKey("logtypes.id", ondelete='CASCADE'), unique=False, nullable=False)
+    profile_key = Column(String(100))
+    action_id = Column(Integer, ForeignKey("actions.id", ondelete='CASCADE'), unique=False, nullable=True)
+    event_id = Column(Integer, ForeignKey("events.id", ondelete='CASCADE'))
+    action = relationship("Action")
+    event = relationship("Event")
+    log_type = relationship("LogType")
+
+    __tablename__ = "logentries"
+
+
+    def __init__(self,
+                 severety=None,
+                 event_id=None,
+                 body=None,
+                 header=None,
+                 recorded_at=func.now(),
+                 type_id=None,
+                 profile_key=None,
+                 action_id=None):
+        self.recorded_at = recorded_at
+        self.type_id = type_id
+        self.body = body
+        self.header = header
+        self.action_id = action_id
+        self.profile_key = profile_key
+        self.severety = severety
+        self.event_id=event_id
+
+    def __repr__(self):
+        return "<LogEntry {} {} {} {}>".format(self.level,
+                                               self.recorded_at,
+                                               self.body,
+                                               self.type_id,
+                                               self.profile_key,
+                                               self.action_id)
+
 
 class Script(Base):
     """ Form Field """
@@ -243,8 +310,8 @@ class FormLink(Base):
 class FormFormFieldLink(Base):
     __tablename__ = 'form_formfield_link'
     id = Column(Integer, primary_key=True)
-    form_id = Column(Integer, ForeignKey('actions.id'))
-    formfield_id = Column(Integer, ForeignKey('forms.id'))
+    form_id = Column(Integer, ForeignKey('actions.id', ondelete='CASCADE'))
+    formfield_id = Column(Integer, ForeignKey('forms.id', ondelete='CASCADE'))
     # ... any other fields
     #form_actions = relationship(Action, backref=backref("actions",cascade="all, delete-orphan"))
     #formsfields = relationship(FormField, backref=backref("formsfields", cascade="all, delete-orphan"))
@@ -253,8 +320,8 @@ class FormFormFieldLink(Base):
 class FormFieldLink(Base):
     __tablename__ = 'action_formfield_link'
     id = Column(Integer, primary_key=True)
-    action_id = Column(Integer, ForeignKey('actions.id'))
-    formfield_id = Column(Integer, ForeignKey('formfields.id'))
+    action_id = Column(Integer, ForeignKey('actions.id', ondelete='CASCADE'))
+    formfield_id = Column(Integer, ForeignKey('formfields.id', ondelete='CASCADE'))
     # ... any other fields
     #formfield_actions = relationship(Action, backref=backref("actions", cascade="all, delete-orphan"))
     #formfields = relationship(Form, backref=backref("formsfields", cascade="all, delete-orphan"))
@@ -263,7 +330,7 @@ class FormFieldLink(Base):
 class RuleSchema(ModelSchema):
     """ Use this schema to serialize rules """
     class Meta:
-        fields = ("id", "code", "name", "is_active",)
+        fields = ("id", "code", "name", "is_active", 'severety',)
 
 
 class FormFieldSchema(ModelSchema):
@@ -271,6 +338,11 @@ class FormFieldSchema(ModelSchema):
     class Meta:
         fields = ("id", "field_id", "field_nname", "field_type",
                   "field_placeholder", "field_value", "form_id",)
+
+
+class LogTypeSchema(ModelSchema):
+    class Meta:
+        fields = ("id", "type", "code",)
 
 
 class FormSchema(ModelSchema):
@@ -296,3 +368,21 @@ class ActionSchema(ModelSchema):
     class Meta:
         fields = ("id", "profile_key", "name", "is_running", "last_run",)
 
+
+class EventSchema(ModelSchema):
+    field = fields.Nested(FormFieldSchema)
+    action = fields.Nested(ActionSchema)
+
+    class Meta:
+        fields = ("id", "recorded_at", "took_place_at", "severety", 
+                  "importance", "description", "title", "action_id",)
+
+
+class LogEntrySchema(ModelSchema):
+    field = fields.Nested(FormFieldSchema)
+    event = fields.Nested(EventSchema)
+    log_type = fields.Nested(LogTypeSchema)
+    action = fields.Nested(ActionSchema)
+
+    class Meta:
+        fields = ("id", "severety", "recorded_at", "header", "body", "type_id", "profile_key", 'action_id', 'event_id',)
