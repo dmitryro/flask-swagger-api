@@ -403,6 +403,9 @@ def record_log():
             action_id:
               type: integer
               description: Action to be logged       
+            ip:
+              type: string
+              description: Client's IP address
     responses:
       201:
         description: Script created
@@ -416,6 +419,7 @@ def record_log():
         profile_key = data.get("profile_key", None)
         log_type_code = data.get('log_type_code', None)
         severety = data.get("severety", None)
+        ip = data.get("ip", "0.0.0.0")
         word = data.get("word", None)
         action_id = int(data.get("action_id", -1))
         field_id = data.get("field_id", None)
@@ -454,6 +458,7 @@ def record_log():
         log = LogEntry(action_id=action.id,
                        event_id=event_id,
                        header=event.title,
+                       ip=ip,
                        severety=severety,
                        body=event.description,
                        profile_key=profile_key,
