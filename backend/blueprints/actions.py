@@ -107,6 +107,43 @@ def get_profile_actions(profile_key):
         return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@actions_blueprint.route("/actions/<int:id>", methods=['PUT'])
+def update_action(id):
+    """
+    Update a single Action
+    This endpoint will update a Action based on it's id
+    ---
+    tags:
+      - Actions
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        description: ID of action to update
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Action returned
+        schema:
+          $ref: '#/definitions/Action'
+      404:
+        description: Action not found
+    """
+    try:
+        sess = obtain_session()
+        action = sess.query(Action).filter(Action.id==id).first()
+        action_schema = ActionSchema(many=False)
+        result = action_schema.dump(action)
+        logger.debug(f"Successfully fetched action {id}")
+        return make_response(jsonify(result), status.HTTP_200_OK)
+    except Exception as e:
+        logger.error(f"Failed reading action {id} - {e}")
+        result = {"error": str(e)}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @actions_blueprint.route("/logs", methods=['GET'])
 def read_logs():
     """
@@ -148,6 +185,80 @@ def read_logs():
 
     logger.debug(f"Successfully fetched all the actions.")
     return make_response(jsonify(result), status.HTTP_200_OK)
+
+
+@actions_blueprint.route("/logs/<int:id>", methods=['GET'])
+def get_log(id):
+    """
+    Retrieve a single LogEntry
+    This endpoint will return a Log Entry based on it's id
+    ---
+    tags:
+      - Log Entries
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        description: ID of log entry to retrieve
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Log Entry returned
+        schema:
+          $ref: '#/definitions/LogEntry'
+      404:
+        description: LogEntry not found
+    """
+    try:
+        sess = obtain_session()
+        logentry = sess.query(LogEntry).filter(LogEntry.id==id).first()
+        logentry_schema = LogEntrySchema(many=False)
+        result = logentry_schema.dump(logentry)
+        logger.debug(f"Successfully fetched log entry {id}")
+        return make_response(jsonify(result), status.HTTP_200_OK)
+    except Exception as e:
+        logger.error(f"Failed reading log entry {id} - {e}")
+        result = {"error": str(e)}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@actions_blueprint.route("/logs/<int:id>", methods=['PUT'])
+def update_log(id):
+    """
+    Update a single LogEntry
+    This endpoint will update a Action based on it's id
+    ---
+    tags:
+      - Log Entries
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        description: ID of log entry to update
+        type: integer
+        required: true
+    responses:
+      200:
+        description: LogEntry returned
+        schema:
+          $ref: '#/definitions/LogEntry'
+      404:
+        description: LogEntry not found
+    """
+    try:
+        logentry_schema = LogEntrySchema(many=False)
+        sess = obtain_session()
+        logentry = sess.query(LogEntry).filter(LogEntry.id==id).first()
+        result = logentry_schema.dump(logentry)
+        logger.debug(f"Successfully updated log entry {id}")
+        return make_response(jsonify(result), status.HTTP_200_OK)
+    except Exception as e:
+        logger.error(f"Failed reading log entry {id} - {e}")
+        result = {"error": str(e)}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @actions_blueprint.route("/logs/<int:id>", methods=['DELETE'])
@@ -360,7 +471,6 @@ def record_log():
         return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-
 @actions_blueprint.route("/scripts", methods=['POST'])
 def generate_script():
     """
@@ -401,12 +511,6 @@ def generate_script():
             raise NotFound("Product key '{profile_key}' was not found.")
 
         sess = obtain_session()
-
-        #action = sess.query(Action).filter(Action.profile_key==key).first()
-
-        #if not action:
-        #    raise NotFound("Product key '{key}' was not found.")
-
         code = ("<script>", f"let key = {profile_key};", 
                 "(function run() {})();"
                 "</script>")
@@ -563,3 +667,242 @@ def delete_action(id):
         result = {"result": "failure"}
         return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+@actions_blueprint.route("/rules", methods=['GET'])
+def list_rules():
+    """
+    Retrieve a list of Rules
+    This endpoint will return all Rules unless a query parameter is specificed
+    ---
+    tags:
+      - Rules
+    description: The Rules endpoint allows you to query Rules
+    definitions:
+      Rules:
+        type: object
+        properties:
+            id:
+              type: integer
+              description: id
+            name:
+              type: string
+              description: Name of the rule
+            code:
+              type: string
+              description: Pattern of the rule
+            is_active:
+              type: boolean
+              description: Rule is active or not
+            severety:
+              type: string
+              description: Severety level of the rule
+            when_created:
+              type: date
+              description: The date the rule was created
+    responses:
+      200:
+        description: An array of Actions
+        schema:
+          type: array
+          items:
+            schema:
+              $ref: '#/definitions/Action'
+    """
+
+    sess = obtain_session()
+    all_rules  = sess.query(Rule).all()
+    rules_schema = RuleSchema(many=True)
+    result = rules_schema.dump(all_rules)
+    logger.debug(f"Successfully fetched all the actions.")
+    return make_response(jsonify(result), status.HTTP_200_OK)
+
+
+@actions_blueprint.route("/rules/<int:id>", methods=['GET'])
+def get_rule(id):
+    """
+    Retrieve a single Rule
+    This endpoint will return a Rule based on it's id
+    ---
+    tags:
+      - Rules
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        description: ID of action to retrieve
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Action returned
+        schema:
+          $ref: '#/definitions/Action'
+      404:
+        description: Action not found
+    """
+    try:
+        sess = obtain_session()
+        rule = sess.query(Rule).filter(Rule.id==id).first()
+        actions = rule.actions
+        rule_schema = RuleSchema(many=False)
+        actions_schema = ActionSchema(many=True)
+        actions_result = actions_schema.dump(actions)
+        result = rule_schema.dump(rule)
+        result['actions'] = actions_result
+        logger.debug(f"Successfully fetched action {id}")
+        return make_response(jsonify(result), status.HTTP_200_OK)
+    except Exception as e:
+        logger.error(f"Failed reading action {id} - {e}")
+        result = {"error": str(e)}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@actions_blueprint.route("/rules", methods=['POST'])
+def create_rule():
+    """
+    Creates a Rule
+    This endpoint will create a Rule based the data in the body that is posted
+    ---
+    tags:
+      - Rules
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          id: rule_data
+          required:
+            - name
+            - code
+          properties:
+            name:
+              type: string
+              description: Rule name
+            code:
+              type: string
+              description: Rule code
+            severety:
+              type: string
+              description: Rule severety (low, medium, high)
+            is_active:
+              type: boolean
+              description: Rule is active or not
+    responses:
+      201:
+        description: Rule created
+        schema:
+          $ref: '#/definitions/Rule'
+      400:
+        description: Bad Request (the posted data was not valid)
+    """
+    try:
+        data = request.json
+        severety = data.get("severety", "medium")
+        name = data.get("name", "detect")
+        code = data.get("code", "")
+        is_active = data.get("is_active", True)
+        rule = Rule(code=code,
+                    name=name,
+                    when_created=func.now(),
+                    is_active=bool(is_active),
+                    severety=severety)
+        s = obtain_session()
+        s.add(rule)
+        s.commit()
+        rule_schema = RuleSchema(many=False)
+        result = rule_schema.dump(rule)
+        logger.debug(f"Saved new rule {name} {code}")
+        return make_response(jsonify(result),  status.HTTP_201_CREATED)
+    except Exception as e:
+        logger.error(f"Failed saving site - {e}")
+        result = {"result": "failure"}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@actions_blueprint.route("/rules/<int:id>", methods=['DELETE'])
+def delete_rule(id):
+    """
+    Delete a Rule
+    This endpoint will delete a Rule based the id specified in the path
+    ---
+    tags:
+      - Rules
+    description: Deletes a Action from the database
+    parameters:
+      - name: id
+        in: path
+        description: ID of rule to delete
+        type: integer
+        required: true
+    responses:
+      204:
+        description: Rule deleted
+    """
+    try:
+        sess = obtain_session()
+        rule = sess.query(Rule).filter(Rule.id==id).first()
+        if rule:
+            sess.delete(rule)
+            sess.commit()
+            sess.flush()
+        logger.debug(f"Successfully deleted rule {id}")
+        result = {"result": "success"}
+        return make_response(jsonify(result), status.HTTP_204_NO_CONTENT)
+    except Exception as e:
+        logger.error(f"Failed deleting rule {id} - {e}")
+        result = {"result": "failure"}
+        return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@actions_blueprint.route("/rules/<int:id>", methods=['PUT'])
+def update_rule(id):
+    """
+    Update a Rule
+    This endpoint will update a Rule based the body that is posted
+    ---
+    tags:
+      - Rules
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        description: ID of Rule to update
+        type: integer
+        required: true
+      - in: body
+        name: body
+        schema:
+          id: data
+          required:
+            - name
+            - code
+          properties:
+            name:
+              type: string
+              description: Ru;e's name
+            code:
+              type: string
+              description: Rule's code or pattern
+            severety:
+              type: string
+              description: Rule's severety level
+            is_active:
+              type: boolean
+              description: Rule is active or not
+    responses:
+      200:
+        description: Contact Updated
+        schema:
+          $ref: '#/definitions/Contact'
+      400:
+        description: Bad Request (the posted data was not valid)
+    """
+    return make_response(jsonify([]), status.HTTP_200_OK)

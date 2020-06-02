@@ -125,6 +125,7 @@ class Rule(Base):
     is_active = Column(Boolean, unique=False, default=True)
     actions = relationship("Action", secondary="action_rule_link")
     severety = Column(String(30), unique=False, nullable=True)
+    when_created = Column(DateTime(timezone=True), server_default=func.now())
 
     __tablename__ = "rules"
 
@@ -132,17 +133,20 @@ class Rule(Base):
                  name=None,
                  code=None,
                  severety='medium',
+                 when_created=func.now(),
                  is_active=True):
         self.name = name
         self.code = code
         self.is_active = is_active
         self.severety = severety
+        self.when_created = when_created
 
     def __repr__(self):
-        return "<Rule {} {} {} {}>".format(self.code,
-                                           self.name,
-                                           self.severety,
-                                           self.is_active)
+        return "<Rule {} {} {} {} {}>".format(self.code,
+                                              self.name,
+                                              self.severety,
+                                              self.when_created,
+                                              self.is_active)
 
 
 
@@ -225,12 +229,13 @@ class LogEntry(Base):
     body = Column(String(1000), unique=False)
     type_id = Column(Integer, ForeignKey("logtypes.id", ondelete='CASCADE'), unique=False, nullable=False)
     profile_key = Column(String(100))
+    ip = Column(String(30), nullable=True,  default='0.0.0.0')
     action_id = Column(Integer, ForeignKey("actions.id", ondelete='CASCADE'), unique=False, nullable=True)
     event_id = Column(Integer, ForeignKey("events.id", ondelete='CASCADE'))
     action = relationship("Action")
     event = relationship("Event")
     log_type = relationship("LogType")
-
+    
     __tablename__ = "logentries"
 
 
@@ -239,6 +244,7 @@ class LogEntry(Base):
                  event_id=None,
                  body=None,
                  header=None,
+                 ip='0.0.0.0',
                  recorded_at=func.now(),
                  type_id=None,
                  profile_key=None,
@@ -246,6 +252,7 @@ class LogEntry(Base):
         self.recorded_at = recorded_at
         self.type_id = type_id
         self.body = body
+        self.ip=ip
         self.header = header
         self.action_id = action_id
         self.profile_key = profile_key
@@ -330,7 +337,7 @@ class FormFieldLink(Base):
 class RuleSchema(ModelSchema):
     """ Use this schema to serialize rules """
     class Meta:
-        fields = ("id", "code", "name", "is_active", 'severety',)
+        fields = ("id", "code", "name", "is_active", 'severety', 'when_created',)
 
 
 class FormFieldSchema(ModelSchema):
@@ -383,6 +390,5 @@ class LogEntrySchema(ModelSchema):
     event = fields.Nested(EventSchema)
     log_type = fields.Nested(LogTypeSchema)
     action = fields.Nested(ActionSchema)
-
     class Meta:
-        fields = ("id", "severety", "recorded_at", "header", "body", "type_id", "profile_key", 'action_id', 'event_id',)
+        fields = ("id", "severety", "recorded_at", "header", "body", "type_id", "profile_key", 'action_id', 'event_id', "ip",)

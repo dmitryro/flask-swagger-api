@@ -117,6 +117,7 @@ CREATE TABLE rules (
         severety varchar(30),
         name varchar(256) NOT NULL,
         code varchar(256) NOT NULL,
+        when_created date,
         UNIQUE(id)  
 );
 
@@ -220,6 +221,7 @@ CREATE TABLE logentries (
         severety varchar(30),
         recorded_at date NOT NULL,
         header varchar(200),
+        ip varchar(30) DEFAULT '0.0.0.0',
         body varchar(1500),
         type_id integer NOT NULL,
         profile_key varchar(30) NOT NULL,
