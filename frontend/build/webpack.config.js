@@ -29,7 +29,8 @@ const conf = {
                 extensions: constants.FILE_EXTENSIONS
             })
         ],
-        alias: { mobx: resolve('node_modules/mobx/lib/mobx.es6.js') }
+        alias: { mobx: resolve('node_modules/mobx/lib/mobx.es6.js'),
+                 'react-virtualized/List': resolve('node_modules/react-virtualized/dist/es/List') }
     },
     module: {
         rules: [...styleRules, ...jsRules, ...fileRules]
@@ -45,7 +46,7 @@ if (process.env.NODE_ENV === 'development') {
         port: config.devPort,
         hot: true,
         disableHostCheck: true,
-        port: "8080",
+        port: "8000",
         host: '0.0.0.0',
         after: function() {
             openBrowser(`http://localhost:${config.devPort}`)

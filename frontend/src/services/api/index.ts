@@ -1,3 +1,6 @@
 export { default as auth } from './auth'
 export { default as user } from './user'
 export { default as site } from './site'
+export { default as log } from './log'
+export { default as rule } from './rule'
+export { default as action } from './action'

@@ -14,7 +14,7 @@ export const asynchronousComponents = {
     Rules: loadComponent(() => import(/* webpackChunkName: "filters" */'@views/Rules')),
     Events: loadComponent(() => import(/* webpackChunkName: "filters" */'@views/Events')),
     Contacts: loadComponent(() => import(/* webpackChunkName: "filters" */'@views/Contacts')),
-    Actions: loadComponent(() => import(/* webpackChunkName: "actions" */'@views/Actions')),
+    Actions: loadComponent(() => import(/* webpackChunkName: "actions" */ '@views/Actions'))
     Logs: loadComponent(() => import(/* webpackChunkName: "logs" */ '@views/Logs'))
 }
 
@@ -112,7 +112,7 @@ export const menu: IMenu[] = [
         id: 10,
         path: '/logs',
         title: 'Logs',
-        icon: 'bars',
+        icon: 'BarsOutlined',
         component: 'Logs',
         exact: true
     }

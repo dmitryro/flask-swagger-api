@@ -1,0 +1,61 @@
+import React from 'react'
+import { Table, Divider, Popconfirm } from 'antd'
+import LogTable from '@components/LogTable'
+import { observer } from 'mobx-react'
+
+import styles from './index.scss'
+import { useOnMount } from '@utils/hooks'
+import useRootStore from '@store/useRootStore'
+
+interface IProps {
+    scrollY: number
+}
+
+function LogTable({ scrollY }: IProps) {
+    const { logStore } = useRootStore()
+
+    const [currentLog, setCurrentLog] = React.useState<ILogStore.ILog>(null)
+
+    function modifyLog(log: ILogStore.ILog) {
+        setCurrentLog(log)
+    }
+
+    useOnMount(logStore.getLogs)
+
+    return (
+        <React.Fragment>
+            <Table<ILogStore.ILog>
+                className="center-table"
+                style={{ width: '100%' }}
+                bordered
+                rowKey="_id"
+                loading={logStore.getLogsloading}
+                dataSource={logStore.logs}
+                scroll={{ y: scrollY }}
+                pagination={{
+                    current: logStore.pageIndex,
+                    showSizeChanger: true,
+                    pageSize: logStore.pageSize,
+                    pageSizeOptions: ['30', '20', '10'],
+                    total: logStore.total
+                }}
+                onChange={logStore.handleTableChange}
+            >
+                <Table.Column<ILogStore.ILog> key="id" title="id" dataIndex="id" width={60} />
+                <Table.Column<ILogStore.ILog> title="Severety" dataIndex="severety" width={60}                     
+                    render={(_, record) => (
+                            <span className={record.severety}>
+                                 { record.severety } 
+                            </span>
+                    )} />
+                <Table.Column<ILogStore.ILog> key="header" title="Title" dataIndex="header" width={120} />
+                <Table.Column<ILogStore.ILog> key="body" title="Info" dataIndex="body" width={120} />
+                <Table.Column<ILogStore.ILog> key="profile_key" title="Profile Key" dataIndex="profile_key" width={120} />
+                <Table.Column<ILogStore.ILog> key="recorded_at" title="Recorded at" dataIndex="recorded_at" width={120} />
+                <Table.Column<ILogStore.ILog> key="type_id" title="Type" dataIndex="type_id" width={120} />
+            </Table>
+        </React.Fragment>
+    )
+}
+
+export default observer(LogTable)

@@ -48,16 +48,14 @@ export class RuleStore extends StoreExt {
      */
     @action
     getRules = async () => {
-         this.getRulesloading = true
-         try {
+        this.getRulesloading = true
+        try {
             const res = await this.api.rule.getRules({ pageIndex: this.pageIndex, pageSize: this.pageSize })
             runInAction('SET_RULE_LIST', () => {
-                this.rules = res.data;
-                                      
-                this.total = res.data.length;
+                this.rules = res.rules
+                this.total = res.total
             })
-        } catch (err) {
-        }    
+        } catch (err) {}
         runInAction('HIDE_RULE_LIST_LOADING', () => {
             this.getRulesloading = false
         })
@@ -65,16 +63,14 @@ export class RuleStore extends StoreExt {
 
     createRule = async (rule: IRuleStore.IRule) => {
         await this.api.rule.createRule(rule)
-        this.getRules()
     }
 
     modifyRule = async (rule: IRuleStore.IRule) => {
         await this.api.rule.modifyRule(rule)
-        this.getRules()
     }
 
-    deleteRule = async (id) => {
-        var res = await this.api.rule.deleteRule(id)
+    deleteRule = async (_id: string) => {
+        await this.api.rule.deleteRule({ _id })
         this.getRules()
     }
 

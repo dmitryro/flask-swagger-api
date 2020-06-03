@@ -6,6 +6,10 @@ export interface RuleStore extends RuleStoreModel {}
 
 export interface IRule {
     id: number
+    is_active: boolean
+    isactive: string
+    severety: string
     name: string
-    category: string
+    code: string 
+    when_created: date
 }

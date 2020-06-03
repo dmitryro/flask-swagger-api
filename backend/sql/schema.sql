@@ -143,8 +143,10 @@ CREATE TABLE scripts (
         UNIQUE(id)
 );
 
+CREATE SEQUENCE action_rule_link_id_seq;
 
 CREATE TABLE action_rule_link (
+        id integer NOT NULL DEFAULT nextval('action_rule_link_id_seq'),
         rule_id integer NOT NULL,
         action_id integer NOT NULL,
         FOREIGN KEY(rule_id) REFERENCES rules(id) ON DELETE CASCADE,
@@ -271,3 +273,6 @@ OWNED BY contacts.id;
 
 ALTER SEQUENCE action_id_seq
 OWNED BY actions.id;
+
+ALTER SEQUENCE action_rule_link_id_seq
+OWNED BY action_rule_link.id;

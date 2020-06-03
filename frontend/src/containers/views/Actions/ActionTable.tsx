@@ -43,6 +43,35 @@ function ActionTable({ scrollY }: IProps) {
                 }}
                 onChange={actionStore.handleTableChange}
             >
+                <Table.Column<IActionStore.IAction> key="id" title="ID" dataIndex="id" width={30} />
+
+                <Table.Column<IActionStore.IAction> key="name" title="Name" dataIndex="name" width={120} />
+                <Table.Column<IActionStore.IAction> key="isrunning" title="Is running" dataIndex="isrunning" width={80} />
+                <Table.Column<IActionStore.IAction> key="last_run" title="Last run" dataIndex="last_run" width={80} />
+                <Table.Column<IActionStore.IAction> key="profile_key" title="Profile Key" dataIndex="profile_key" width={100} />
+                <Table.Column<IActionStore.IAction>
+                    key="action"
+                    title="Action"
+                    width={120}
+                    render={(_, record) => (
+                        <span>
+                            <span className={styles.ctrlEle} onClick={() => modifyAction(record)}>
+                                Modify
+                            </span>
+                            <Divider type="vertical" />
+                            <Popconfirm
+                                placement="top"
+                                title="Delete?"
+                                onConfirm={() =>ruleStore.deleteAction(record.id)}
+                                okText="Yes"
+                                cancelText="No">
+                                <span className={styles.ctrlEle}>Delete</span>
+                            </Popconfirm>
+                        </span>
+                    )}
+                />
+
+
             </Table>
             <ActionModal visible={modalVisible} onCancel={() => setModalVisible(false)} action={currentAction} />
         </React.Fragment>

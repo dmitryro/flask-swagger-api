@@ -13,11 +13,6 @@ export default {
         return rules;
     },
 
-    crawlRule(id: number): Promise<any> {
-       var forms = client.get('crawl', id);
-       return forms;
-    },
-
     createRule(data: object): Promise<any> {
         // Post a new rule
         var rules = client.post('rules', data || {});

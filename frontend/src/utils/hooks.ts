@@ -27,3 +27,21 @@ export function useOnUnmount(onUnmount: () => any) {
         return () => onUnmount && onUnmount()
     }, [])
 }
+
+
+
+/**
+ * componentDidChange in hook way
+ *
+ * @export
+ * @param {() => any} onChange
+ * @returns
+ */
+
+export function useOnChange(onChange: ()=> any) {
+    return React.useEffect(() => {
+        if (onChange) {
+            onChange()
+        }
+    }, [])
+}

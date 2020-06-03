@@ -56,7 +56,7 @@ function SiteModal({ visible, onCancel, site, form }: IProps) {
                                 //siteStore.changePageIndex(1)
                             }
                         } else {
-                            await siteStore.modifySite({ ...values, _id: site._id })
+                            await siteStore.modifySite({ ...values, _id: site.id })
                             siteStore.getSites()
                         }
                         onCancel()

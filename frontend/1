@@ -22,7 +22,7 @@ const formItemLayout = {
     }
 }
 
-const ruleSeverety = ['low', 'mild', 'medium', 'elevated', 'high', 'highest']
+const ruleCategory = ['rule']
 
 interface IProps extends FormComponentProps {
     visible: boolean
@@ -53,9 +53,10 @@ function RuleModal({ visible, onCancel, rule, form }: IProps) {
                         if (typeIsAdd) {
                             if (ruleStore!==undefined) {
                                 await ruleStore.createRule(values)
+                                //ruleStore.changePageIndex(1)
                             }
                         } else {
-                            await ruleStore.modifyRule({ ...values, id: rule.id })
+                            await ruleStore.modifyRule({ ...values, _id: rule._id })
                             ruleStore.getRules()
                         }
                         onCancel()
@@ -78,32 +79,6 @@ function RuleModal({ visible, onCancel, rule, form }: IProps) {
             okButtonProps={{ loading }}
         >
             <Form onSubmit={submit}>
-                <FormItem {...formItemLayout} label="name">
-                    {getFieldDecorator('name', {
-                        initialValue: rule ? rule.name : '',
-                        rules: [{ required: true }]
-                    })(<Input />)}
-                </FormItem>
-                <FormItem {...formItemLayout} label="code">
-                    {getFieldDecorator('code', {
-                        initialValue: rule ? rule.code : '',
-                        rules: [{ required: true }]
-                    })(<Input />)}
-                </FormItem>
-                <FormItem {...formItemLayout} label="severety">
-                    {getFieldDecorator('severety', {
-                        initialValue: rule ? rule.severety : ruleSeverety[0],
-                        rules: [{ required: true }]
-                    })(
-                        <Select>
-                            {ruleSeverety.map(c => (
-                                <Select.Option key={c} value={c}>
-                                    {c}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    )}
-                </FormItem>
             </Form>
         </Modal>
     )

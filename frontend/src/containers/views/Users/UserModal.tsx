@@ -78,6 +78,21 @@ function UserModal({ visible, onCancel, user, form }: IProps) {
                         rules: [{ required: true }]
                     })(<Input />)}
                 </FormItem>
+
+                <FormItem {...formItemLayout} label="first name">
+                    {getFieldDecorator('first_name', {
+                        initialValue: user ? user.first_name : '',
+                        rules: [{ required: true }]
+                    })(<Input />)}
+                </FormItem>
+
+                <FormItem {...formItemLayout} label="last name">
+                    {getFieldDecorator('last_name', {
+                        initialValue: user ? user.last_name : '',
+                        rules: [{ required: true }]
+                    })(<Input />)}
+                </FormItem>
+
                 {typeIsAdd && (
                     <FormItem {...formItemLayout} label="password">
                         {getFieldDecorator('password', {

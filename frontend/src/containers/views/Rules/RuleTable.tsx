@@ -23,7 +23,6 @@ function RuleTable({ scrollY }: IProps) {
     }
 
     useOnMount(ruleStore.getRules)
-
     return (
         <React.Fragment>
             <Table<IRuleStore.IRule>
@@ -42,7 +41,36 @@ function RuleTable({ scrollY }: IProps) {
                     total: ruleStore.total
                 }}
                 onChange={ruleStore.handleTableChange}
-            >
+            > 
+
+                <Table.Column<IRuleStore.IRule> key="id" title="ID" dataIndex="id" width={30} />
+                <Table.Column<IRuleStore.IRule> key="name" title="Name" dataIndex="name" width={120} />
+                <Table.Column<IRuleStore.IRule> key="code" title="Code" dataIndex="code" width={80} />
+                <Table.Column<IRuleStore.IRule> key="isactive" title="Is Active" dataIndex="isactive" width={80} />
+                <Table.Column<IRuleStore.IRule> key="severety" title="Severety" dataIndex="severety" width={100} />
+                <Table.Column<IRuleStore.IRule> key="when_created" title="When Created" dataIndex="when_created" width={100} />
+                <Table.Column<IRuleStore.IRule>
+                    key="action"
+                    title="Action"
+                    width={120}
+                    render={(_, record) => (
+                        <span>
+                            <span className={styles.ctrlEle} onClick={() => modifyRule(record)}>
+                                Modify
+                            </span>
+                            <Divider type="vertical" />
+                            <Popconfirm
+                                placement="top"
+                                title="Delete?"
+                                onConfirm={() =>ruleStore.deleteRule(record.id)}
+                                okText="Yes"
+                                cancelText="No">
+                                <span className={styles.ctrlEle}>Delete</span>
+                            </Popconfirm>
+                        </span>
+                    )}
+                />
+
             </Table>
             <RuleModal visible={modalVisible} onCancel={() => setModalVisible(false)} rule={currentRule} />
         </React.Fragment>

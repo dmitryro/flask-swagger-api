@@ -1,7 +1,6 @@
 import client from '@services/client'
 
 function revert(node, old) {
-    alert("OLD"+old);
     node.childNodes[7].innerHTML=old;
     return false;
 }

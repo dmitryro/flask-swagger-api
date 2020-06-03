@@ -15,6 +15,13 @@ export class SiteStore extends StoreExt {
 
    @observable
    site_id = -1
+
+
+   @action
+   setIsCrawling = (isCrawling) => {
+       this.isCrawling = isCrawling;
+   }
+
    /**
     * Increase progress bar
     */

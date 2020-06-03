@@ -80,7 +80,6 @@ def get_profile_actions(profile_key):
         results = []
         actions = sess.query(Action).filter(Action.profile_key==profile_key).all()
         sess.flush()
-
         for action in actions:
             rules = action.rules #sess.query(Action).filter(Action.id==id).all()
             forms = action.forms
@@ -817,14 +816,19 @@ def create_rule():
                     is_active=bool(is_active),
                     severety=severety)
         s = obtain_session()
+        profile_key = 'GX-20101'
+        actions = s.query(Action).filter(Action.profile_key==profile_key).all()
+        rule.actions = actions
         s.add(rule)
         s.commit()
         rule_schema = RuleSchema(many=False)
+        action_schema = ActionSchema(many=True)
         result = rule_schema.dump(rule)
+        result['actions'] = action_schema.dump(actions)
         logger.debug(f"Saved new rule {name} {code}")
         return make_response(jsonify(result),  status.HTTP_201_CREATED)
     except Exception as e:
-        logger.error(f"Failed saving site - {e}")
+        logger.error(f"Failed saving rule - {e}")
         result = {"result": "failure"}
         return make_response(jsonify(result), status.HTTP_500_INTERNAL_SERVER_ERROR)
 

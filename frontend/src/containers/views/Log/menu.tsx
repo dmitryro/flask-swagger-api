@@ -14,8 +14,7 @@ export const asynchronousComponents = {
     Rules: loadComponent(() => import(/* webpackChunkName: "filters" */'@views/Rules')),
     Events: loadComponent(() => import(/* webpackChunkName: "filters" */'@views/Events')),
     Contacts: loadComponent(() => import(/* webpackChunkName: "filters" */'@views/Contacts')),
-    Actions: loadComponent(() => import(/* webpackChunkName: "actions" */'@views/Actions')),
-    Logs: loadComponent(() => import(/* webpackChunkName: "logs" */ '@views/Logs'))
+    Actions: loadComponent(() => import(/* webpackChunkName: "actions" */ '@views/Actions'))
 }
 
 // all routers key
@@ -106,14 +105,6 @@ export const menu: IMenu[] = [
         title: 'Settings',
         icon: 'setting',
         component: 'Settings',
-        exact: true
-    },
-    {
-        id: 10,
-        path: '/logs',
-        title: 'Logs',
-        icon: 'bars',
-        component: 'Logs',
         exact: true
     }
 ]

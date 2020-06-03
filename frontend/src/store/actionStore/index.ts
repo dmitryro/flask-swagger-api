@@ -51,12 +51,12 @@ export class ActionStore extends StoreExt {
         this.getActionsloading = true
         try {
             const res = await this.api.action.getActions({ pageIndex: this.pageIndex, pageSize: this.pageSize })
-            runInAction('SET_USER_LIST', () => {
-                this.actions = res.actions
-                this.total = res.total
+            runInAction('SET_ACTION_LIST', () => {
+                this.actions = res.data;
+                this.total = res.data.length;
             })
         } catch (err) {}
-        runInAction('HIDE_USER_LIST_LOADING', () => {
+        runInAction('HIDE_ACTION_LIST_LOADING', () => {
             this.getActionsloading = false
         })
     }
