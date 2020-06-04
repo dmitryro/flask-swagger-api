@@ -53,8 +53,8 @@ def create_app():
         "specs": [
             {
                 "version": "0.0.1",
-                "title": "Flask API",
-                "description": "This is a sample flask API using swagger",
+                "title": "SmartForm API",
+                "description": "SmartForm API using swagger",
                 "endpoint": 'v1_spec',
                 "route": '/v1/spec'
             }

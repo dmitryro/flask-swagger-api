@@ -114,7 +114,7 @@ CREATE SEQUENCE rule_id_seq;
 CREATE TABLE rules (
         id integer NOT NULL DEFAULT nextval('rule_id_seq'),
         is_active BOOLEAN DEFAULT TRUE,
-        severety varchar(30),
+        severity varchar(30),
         name varchar(256) NOT NULL,
         code varchar(256) NOT NULL,
         when_created date,
@@ -193,7 +193,7 @@ CREATE TYPE importance as ENUM (
 
 CREATE SEQUENCE logentry_id_seq;
 
-CREATE TYPE severety AS ENUM (
+CREATE TYPE severity AS ENUM (
   'LOW', 
   'MILD',
   'MEDIUM',
@@ -212,7 +212,7 @@ CREATE TABLE events(
        title varchar(200),
        description varchar(1000),
        importance varchar(30), 
-       severety varchar(30),
+       severity varchar(30),
        action_id integer,
        field_id integer,
        FOREIGN KEY(action_id) REFERENCES actions(id) ON DELETE CASCADE
@@ -220,7 +220,7 @@ CREATE TABLE events(
 
 CREATE TABLE logentries (
         id integer NOT NULL DEFAULT nextval('logentry_id_seq'),
-        severety varchar(30),
+        severity varchar(30),
         recorded_at date NOT NULL,
         header varchar(200),
         ip varchar(30) DEFAULT '0.0.0.0',

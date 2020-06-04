@@ -156,9 +156,9 @@ def read_logs():
       LogEntry:
         type: object
         properties:
-            severety:
+            severity:
               type: string
-              description: Log Entry severety
+              description: Log Entry severity
             event_id:
               type: integer
               description: Related event id
@@ -310,9 +310,9 @@ specificed
       Event:
         type: object
         properties:
-            severety:
+            severity:
               type: string
-              description: Event severety
+              description: Event severity
             importance:
               type: string
               description: Event importance
@@ -359,7 +359,7 @@ specificed
 def record_log():
     """
     Creates a Log Entry
-    This endpoint will generate a log entry based on profile key and severety.
+    This endpoint will generate a log entry based on profile key and severity.
     ---
     tags:
       - Log Entries
@@ -375,7 +375,7 @@ def record_log():
           id: script_data
           required:
             - profile_key
-            - severety
+            - severity
             - word
             - action_id
             - log_type_code
@@ -384,9 +384,9 @@ def record_log():
             profile_key:
               type: string
               description: Profile Key
-            severety:
+            severity:
               type: string
-              description: Content severety
+              description: Content severity
             importance:
               type: string
               description: Content importance
@@ -417,13 +417,13 @@ def record_log():
         data = request.json
         profile_key = data.get("profile_key", None)
         log_type_code = data.get('log_type_code', None)
-        severety = data.get("severety", None)
+        severity = data.get("severity", None)
         ip = data.get("ip", "0.0.0.0")
         word = data.get("word", None)
         action_id = int(data.get("action_id", -1))
         field_id = data.get("field_id", None)
         importance = data.get("importance", None)
-        logger.debug(f"==> Read the params {profile_key} - {log_type_code} - {severety} - {word} - {action_id} - {field_id}")
+        logger.debug(f"==> Read the params {profile_key} - {log_type_code} - {severity} - {word} - {action_id} - {field_id}")
 
         if not field_id:
             raise NotFound("Field id '{field_id}' was not found.") 
@@ -440,7 +440,7 @@ def record_log():
 
         event = Event(title=f"detected {word}",
                       importance=importance,
-                      severety=severety,
+                      severity=severity,
                       description=f"detected {word}",
                       action_id=action_id, 
                       field_id=field.id)
@@ -458,7 +458,7 @@ def record_log():
                        event_id=event_id,
                        header=event.title,
                        ip=ip,
-                       severety=severety,
+                       severity=severity,
                        body=event.description,
                        profile_key=profile_key,
                        type_id=logtype.id)
@@ -697,7 +697,7 @@ def list_rules():
             is_active:
               type: boolean
               description: Rule is active or not
-            severety:
+            severity:
               type: string
               description: Severety level of the rule
             when_created:
@@ -790,9 +790,9 @@ def create_rule():
             code:
               type: string
               description: Rule code
-            severety:
+            severity:
               type: string
-              description: Rule severety (low, medium, high)
+              description: Rule severity (low, medium, high)
             is_active:
               type: boolean
               description: Rule is active or not
@@ -806,7 +806,7 @@ def create_rule():
     """
     try:
         data = request.json
-        severety = data.get("severety", "medium")
+        severity = data.get("severity", "medium")
         name = data.get("name", "detect")
         code = data.get("code", "")
         is_active = data.get("is_active", True)
@@ -814,7 +814,7 @@ def create_rule():
                     name=name,
                     when_created=func.now(),
                     is_active=bool(is_active),
-                    severety=severety)
+                    severity=severity)
         s = obtain_session()
         profile_key = 'GX-20101'
         actions = s.query(Action).filter(Action.profile_key==profile_key).all()
@@ -900,9 +900,9 @@ def update_rule(id):
             code:
               type: string
               description: Rule's code or pattern
-            severety:
+            severity:
               type: string
-              description: Rule's severety level
+              description: Rule's severity level
             is_active:
               type: boolean
               description: Rule is active or not

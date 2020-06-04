@@ -16,11 +16,11 @@ INSERT INTO formfields(field_id, field_name, field_value, field_type, field_plac
 INSERT INTO formfields(field_id, field_name, field_value, field_type, field_placeholder, form_id, action_id) VALUES('lastname', 'lastname', '', 'text', 'Initial Text', 1, 1);
 INSERT INTO actions (is_running, profile_key, name, last_run) VALUES (TRUE, 'GX-20101', 'monitor', NOW());
 INSERT INTO actions (is_running, profile_key, name, last_run) VALUES (TRUE, 'GX-20102', 'monitor', NOW());
-INSERT INTO rules (name, code, is_active, severety, when_created) VALUES('detect', 'WORD murder', TRUE, 'high', NOW());
-INSERT INTO rules (name, code, is_active, severety, when_created) VALUES('detect', 'WORD kill', TRUE, 'high', NOW());
-INSERT INTO rules (name, code, is_active, severety, when_created) VALUES('detect', 'WORD ask', TRUE, 'medium', NOW());
-INSERT INTO rules (name, code, is_active, severety, when_created) VALUES('detect', 'WORD search', TRUE, 'medium', NOW());
-INSERT INTO rules (name, code, is_active, severety, when_created) VALUES('detect', 'WORD meh', TRUE, 'low', NOW());
+INSERT INTO rules (name, code, is_active, severity, when_created) VALUES('detect', 'WORD murder', TRUE, 'high', NOW());
+INSERT INTO rules (name, code, is_active, severity, when_created) VALUES('detect', 'WORD kill', TRUE, 'high', NOW());
+INSERT INTO rules (name, code, is_active, severity, when_created) VALUES('detect', 'WORD ask', TRUE, 'medium', NOW());
+INSERT INTO rules (name, code, is_active, severity, when_created) VALUES('detect', 'WORD search', TRUE, 'medium', NOW());
+INSERT INTO rules (name, code, is_active, severity, when_created) VALUES('detect', 'WORD meh', TRUE, 'low', NOW());
 INSERT INTO action_rule_link(action_id, rule_id) VALUES(1, 1);
 INSERT INTO action_rule_link(action_id, rule_id) VALUES(1, 2);
 INSERT INTO action_rule_link(action_id, rule_id) VALUES(1, 3);
