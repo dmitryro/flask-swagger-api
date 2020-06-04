@@ -1,0 +1,30 @@
+.main {
+    width:100%;
+    height:90%;
+}
+.entry-row {
+   margin-top:10px;
+   width:100%;
+}
+.entry-row input {
+   border: 1px solid #cccccc;
+}
+.host-entry {
+   float:left;
+   width:30%;
+}
+
+.port-entry {
+   float:left;
+   width:30%;
+}
+
+.ga-entry {
+   float:left;
+   width:30%;
+}
+
+.clear {
+   clear:both;
+}            
+

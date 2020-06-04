@@ -8,7 +8,7 @@ export interface IRule {
     id: number
     is_active: boolean
     isactive: string
-    severety: string
+    severity: string
     name: string
     code: string 
     when_created: date

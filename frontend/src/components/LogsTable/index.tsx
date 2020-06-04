@@ -36,20 +36,51 @@ createTheme('solarized', {
 
 const conditionalRowStyles = [
   {
-    when: cell => cell.severety == 'high',
+    when: cell => cell.severity == 'highest',
     style: {
       backgroundColor: 'white',
-      color: 'red',
+      color: '#ff0000',
       '&:hover': {
         cursor: 'pointer',
       },
     },
   },
   {
-    when: cell => cell.severety == 'medium',
+    when: cell => cell.severity == 'high',
     style: {
       backgroundColor: 'white',
-      color: 'orange',
+      color: '#ce1414',
+      '&:hover': {
+        cursor: 'pointer',
+      },
+    },
+  },
+
+  {
+    when: cell => cell.severity == 'medium',
+    style: {
+      backgroundColor: 'white',
+      color: '#00b6ff',
+      '&:hover': {
+        cursor: 'pointer',
+      },
+    },
+  },
+  {
+    when: cell => cell == 'elevated',
+    style: {
+      backgroundColor: 'white',
+      color: '#ff8300',
+      '&:hover': {
+        cursor: 'pointer',
+      },
+    },
+  },
+  {
+    when: cell => cell == 'mild',
+    style: {
+      backgroundColor: 'white',
+      color: '#2600ff',
       '&:hover': {
         cursor: 'pointer',
       },
@@ -59,14 +90,23 @@ const conditionalRowStyles = [
     when: cell => cell == 'low',
     style: {
       backgroundColor: 'white',
-      color: 'green',
+      color: '#00ff00',
       '&:hover': {
         cursor: 'pointer',
       },
     },
   },
+  {
+    when: cell => cell == 'disaster',
+    style: {
+      backgroundColor: 'white',
+      color: '#ff0000',
+      '&:hover': {
+        cursor: 'pointer',
+      },
+    },
+  }
 ];
-
 
 function updateExternalState(selected, store, component, forceUpdate){
     if (component) {

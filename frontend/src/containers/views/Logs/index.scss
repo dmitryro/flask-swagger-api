@@ -14,15 +14,30 @@
     color: $primary-color;
     cursor: pointer;
 }
+.highest {
+    color: #ff0000;
+}
 
 .high {
-    color: red;
+    color: #ce1414;
 }
 
 .medium {
-    color: blue;
+    color: #00b6ff;
+}
+
+.elevated {
+    color: #ff8300; 
+}
+
+.mild {
+    color: #2600ff;
 }
 
 .low {
-    color: green;
+    color: #00ff00;
+}
+
+.disaster {
+    color: #ff0000;
 }

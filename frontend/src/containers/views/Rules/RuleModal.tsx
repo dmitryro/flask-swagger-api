@@ -22,7 +22,7 @@ const formItemLayout = {
     }
 }
 
-const ruleSeverety = ['low', 'mild', 'medium', 'elevated', 'high', 'highest']
+const ruleSeverity = ['low', 'mild', 'medium', 'elevated', 'high', 'highest']
 
 interface IProps extends FormComponentProps {
     visible: boolean
@@ -90,13 +90,13 @@ function RuleModal({ visible, onCancel, rule, form }: IProps) {
                         rules: [{ required: true }]
                     })(<Input />)}
                 </FormItem>
-                <FormItem {...formItemLayout} label="severety">
-                    {getFieldDecorator('severety', {
-                        initialValue: rule ? rule.severety : ruleSeverety[0],
+                <FormItem {...formItemLayout} label="severity">
+                    {getFieldDecorator('severity', {
+                        initialValue: rule ? rule.severity : ruleSeverity[0],
                         rules: [{ required: true }]
                     })(
                         <Select>
-                            {ruleSeverety.map(c => (
+                            {ruleSeverity.map(c => (
                                 <Select.Option key={c} value={c}>
                                     {c}
                                 </Select.Option>

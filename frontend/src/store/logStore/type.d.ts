@@ -6,7 +6,7 @@ export interface LogStore extends LogStoreModel {}
 
 export interface ILog {
     id: number
-    severety: string
+    severity: string
     action_id: number
     body: string
     event_id: number

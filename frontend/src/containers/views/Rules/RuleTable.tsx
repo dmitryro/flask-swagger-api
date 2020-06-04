@@ -47,7 +47,7 @@ function RuleTable({ scrollY }: IProps) {
                 <Table.Column<IRuleStore.IRule> key="name" title="Name" dataIndex="name" width={120} />
                 <Table.Column<IRuleStore.IRule> key="code" title="Code" dataIndex="code" width={80} />
                 <Table.Column<IRuleStore.IRule> key="isactive" title="Is Active" dataIndex="isactive" width={80} />
-                <Table.Column<IRuleStore.IRule> key="severety" title="Severety" dataIndex="severety" width={100} />
+                <Table.Column<IRuleStore.IRule> key="severity" title="Severity" dataIndex="severity" width={100} />
                 <Table.Column<IRuleStore.IRule> key="when_created" title="When Created" dataIndex="when_created" width={100} />
                 <Table.Column<IRuleStore.IRule>
                     key="action"

@@ -19,8 +19,8 @@ const columns = [
     sortable: true,
   },
   {
-    name: 'Severety',
-    selector: 'severety',
+    name: 'Severity',
+    selector: 'severity',
     sortable: true,
     right: true,
   },
