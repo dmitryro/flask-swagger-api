@@ -34,6 +34,7 @@ interface IProps extends FormComponentProps {
 
 async function updateTable(store) {
     updateExternalState([], store, store.component, store.forceUpdate);
+    store.getLogs()
     return false;
 }
 

@@ -11,7 +11,7 @@ import LogModal from '@components/LogModal'
 import deepForceUpdate from 'react-deep-force-update';
 
 const selectProps = { indeterminate: isIndeterminate => isIndeterminate };
-
+var records = []
 createTheme('solarized', {
   text: {
     primary: '#268bd2',
@@ -107,6 +107,14 @@ const conditionalRowStyles = [
     },
   }
 ];
+function deleteRow(id) {
+    alert(id);
+}
+
+const handleChange = (state) => {
+  console.log('Selected Rows: ', state.selectedRows);
+  state.data = [];
+};
 
 function updateExternalState(selected, store, component, forceUpdate){
     if (component) {
@@ -147,23 +155,55 @@ function updateExternalState(selected, store, component, forceUpdate){
     return false;
 }
 
+function useInterval(callback, delay) {
+  const savedCallback = useRef();
+
+  // Remember the latest callback.
+  useEffect(() => {
+     
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
+}
 
 
-function LogsTable({title, columns, data, customStyles}) {
+function LogsTable({title, columns, customStyles}) {
     const { logStore } = useRootStore()
     const [modalVisible, setModalVisible] = useState(false)
+    const [data, setData] = useState(logStore.logs)
+
+    records = logStore.logs;
 
     const updateState = (state) => {
         if (state) {
             logStore.setTotal(state.selectedRows.length);
-            //logStore.emptySelected()
  
             state.selectedRows.forEach(function(row) {
                 logStore.pushLog(row.id);
             });
         }
+      
         data = logStore.logs;
     };
+    useEffect(() => {
+        if (logStore.selectedRows) {
+               for(var i=0; i< logStore.selectedRows.length; i++) {
+                   var id = logStore.selectedRows[i].id;
+                   logStore.popFromLogs(id);
+               }
+        }
+        setData(logStore.logs);
+    });
     const forceUpdate = useForceUpdate();
 
     const selectProps = { indeterminate: isIndeterminate => isIndeterminate };
@@ -177,27 +217,28 @@ function LogsTable({title, columns, data, customStyles}) {
     useOnMount(logStore.getLogs);
     useOnMount(updateExternalState);
     observer(updateExternalState);
-
-
     const handleChange = () => {
         forceUpdate();
     };
-    
-    return (
+
+
+    return( 
           <React.Fragment>      
                 <DataTable
                  title={title}
                  columns={columns}
-                 data={logStore.logs}
+                 data={data}
                  selectableRows
                  selectableRowsComponent={Checkbox} // Pass the function only
                  conditionalRowStyles={conditionalRowStyles} 
                  pagination={pagination}
-                 onChange={handleChange}
+                 onChange={() => deleteRow(row._id)}
                  onSelectedRowsChange={v => updateExternalState(v, logStore, this, forceUpdate)}
                  paginationTotalRows={total}
                  paginationPerPage={perpage}
                  selectableRowsComponentProps={selectProps}
+                 Clicked
+                 Selected={handleChange}
                 />
                <LogModal visible={modalVisible} onCancel={() => setModalVisible(false)} />
            </React.Fragment>

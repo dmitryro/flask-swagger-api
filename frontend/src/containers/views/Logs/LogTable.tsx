@@ -100,7 +100,6 @@ function LogTable({ scrollY }: IProps) {
 
         <LogsTable
           title="Access Log"
-          data={logStore.logs}
           columns={columns}
           onChange={forceUpdate}
           onClick={forceUpdate}

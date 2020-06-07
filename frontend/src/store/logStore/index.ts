@@ -80,7 +80,7 @@ export class LogStore extends StoreExt {
               
              runInAction('SET_LOG_LIST', () => {
                 this.logs = res.data
-                this.total = 2
+                this.total = this.logs.length
             })
 
         } catch (err) {
