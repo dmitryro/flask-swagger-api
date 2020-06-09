@@ -90,7 +90,7 @@ function LogModal({ visible, onCancel, log, form }: IProps) {
             onCancel={onCancel}
             okButtonProps={{ loading }}
         >
-            Are you sure you want to delete {logStore.total} items?
+            Are you sure you want to delete {logStore.selectedRows.length} items?
             <Form onSubmit={submit}>
             </Form>
         </Modal>

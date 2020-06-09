@@ -7,6 +7,10 @@ export class LogStore extends StoreExt {
     /**
      * @memberof LogStore
      */
+
+    @observable
+    toggledClearRows = false
+
     @observable
     component = undefined
 
@@ -66,6 +70,16 @@ export class LogStore extends StoreExt {
         this.selectedRows = selectedRows;
     }
 
+    @action
+    setToggledClearRows = (toggledClearRows)=> {
+        this.toggledClearRows = toggledClearRows;
+    }
+
+
+    @action
+    getToggledClearRows = ()=> {
+        return this.toggledClearRows;
+    }
     /**
      * 加载用户列表
      *

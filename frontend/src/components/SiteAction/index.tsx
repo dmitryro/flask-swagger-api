@@ -17,7 +17,7 @@ function SiteAction({record}) {
 
 
     return (siteStore.isCrawling & record.id == siteStore.site_id  ?
-           <CrawlingProgressBar progress={siteStore.crawlingProgress} /> :
+           <CrawlingProgressBar record={record}  progress={siteStore.crawlingProgress} /> :
                          <span>
                              <span className={styles.ctrlEle} onClick={() => siteStore.crawlSite(record.id)}>
                                  Crawl

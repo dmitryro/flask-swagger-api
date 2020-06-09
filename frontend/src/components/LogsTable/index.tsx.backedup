@@ -1,4 +1,4 @@
-import React, { Componsent, useState, useEffect, useRef } from 'react';
+import React, { Componsent, useState, useEffect, useContext, useRef } from 'react';
 import memoize from 'memoize-one';
 import ReactDOM from "react-dom";
 import useRootStore from '@store/useRootStore'
@@ -8,10 +8,10 @@ import { useOnMount, useOnChange } from '@utils/hooks'
 import { Checkbox } from "antd";
 import useForceUpdate from 'use-force-update';
 import LogModal from '@components/LogModal'
+import deepForceUpdate from 'react-deep-force-update';
 
 const selectProps = { indeterminate: isIndeterminate => isIndeterminate };
-var records = []
-
+let tableData = [];
 createTheme('solarized', {
   text: {
     primary: '#268bd2',
@@ -107,31 +107,15 @@ const conditionalRowStyles = [
     },
   }
 ];
-
-
-function updateExternalState(selected, store, component, forceUpdate){
-    if (store) {
-         
-         store.setForceUpdate(forceUpdate);
-         store.setComponent(component);
- 
-         if (selected.selectedRows) {
-             store.setSelectedRows(selected.selectedRows);
-         } else {
-             store.forceUpdate();
-             selected.selectedRows = [];
-             store.setSelectedRows([]);
-         }
-    }
-    return false;
+function readData() {
+    const { logStore } = useRootStore()
+    return logStore.logs;
 }
-
 function useInterval(callback, delay) {
   const savedCallback = useRef();
 
   // Remember the latest callback.
   useEffect(() => {
-     
     savedCallback.current = callback;
   }, [callback]);
 
@@ -146,83 +130,130 @@ function useInterval(callback, delay) {
     }
   }, [delay]);
 }
+function updateExternalState(selected, store, component, forceUpdate){
+    if (component) {
+        deepForceUpdate(component);
+    }
+
+    if (store) {
+         store.setForceUpdate(forceUpdate);
+         store.setComponent(component);
+ 
+         if (selected.selectedRows) {
+             store.setSelectedRows(selected.selectedRows);
+             store.setTotal(selected.selectedRows.length);
+         } else {
+             console.log("Let's refresh ... ");
+             store.forceUpdate();
+         }
+
+         //if(forceUpdate) {
+              //forceUpdate(component);
+         //}
+         //console.log("SEE IT STORE ===> "+JSON.stringify(store.logs));
+         //console.log("SEE IT STORE SELECTED ===> "+JSON.stringify(store.selected)); 
+         //console.log("EEFORE --- HEI LET US CHECK "+JSON.stringify(store.logs));
+         //console.log("BEFORE --- TASTY STUFF SELECTED"+JSON.stringify(store.selected));
+
+         //if(store.selected) {
+         //      for(var i=0; i< store.selected.length; i++) {
+         //          var id = store.selected[i];
+         //          store.popFromLogs(id);
+         //      }
+           //    console.log("AFTER --- HEI LET US CHECK "+JSON.stringify(store.logs));
+           //    console.log("AFTER --- TASTY STUFF SELECTED "+JSON.stringify(store.selected));
+         //}
+         //store.emptySelected()
+    }
+    
+    return false;
+}
 
 
-function LogsTable({title, columns, customStyles}) {
-    const forceUpdate = useForceUpdate();
+
+function LogsTable({title, columns, data, customStyles}) {
     const { logStore } = useRootStore()
     const [modalVisible, setModalVisible] = useState(false)
-    const [data, setData] = useState(logStore.logs)
-    const [toggledClearRows, setToggledClearRows] = useState(false);
-    const handleClearRows = () => {
-       setToggledClearRows({ toggledClearRows: !toggledClearRows});
-       logStore.setToggledClearRows(!logStore.getToggledClearRows);
-       logStore.setSelectedRows([]);
+    let [delay, setDelay] = useState(1000);
+
+    const updateState = (state) => {
+        if (state) {
+            logStore.setTotal(state.selectedRows.length);
+            //logStore.emptySelected()
+ 
+            state.selectedRows.forEach(function(row) {
+                logStore.pushLog(row.id);
+            });
+        }
+        data = logStore.logs;
     };
+    var deleted = false;   
 
     useEffect(() => {
-        if (logStore.selectedRows) {
+        if(logStore.selectedRows) {
                for(var i=0; i< logStore.selectedRows.length; i++) {
                    var id = logStore.selectedRows[i].id;
-                   //logStore.popFromLogs(id);
+                   logStore.popFromLogs(id);
                }
+               console.log("TIME TO RE-RENDER"+JSON.stringify(logStore.logs));
+               //deleted = true;
+               tableData = logStore.logs;
+        } else {
+          tableData = logStore.logs;
         }
-        //setToggledClearRows(!toggledClearRows);
-        //logStore.setToggledClearRows(!toggledClearRows):
-        
-        setData(logStore.logs);
-        console.log("TOTAL SELECTED:"+logStore.selectedRows.length);
+        logStore.logs = []
+        forceUpdate();
+       // data = logStore.logs;
+        //setData(logStore.logs);
+       // forceUpdate();
     });
 
+    //useInterval(() => {
+    // ...
+    //}, 1000);
+
     useInterval(() => {
-        logStore.getLogs();
-        setData(logStore.logs);
-        forceUpdate();
-    }, 1000);
+    // Your custom logic here
+//        console.log("TIME TO RE-RENDER COMPONENT");
+      //if (deleted) {
+      //       forceUpdate();
+      //}
+    }, delay);
 
-
-      // You can use setState or dispatch with something like Redux so we can use
-      // the retrieved data
-       //handleClearRows();
-       //console.log('Selected Rows: ', state.selectedRows);
-    //const handleChange = (state) => {
-       // You can use setState or dispatch with something like Redux so we can use
-       // the retrieved data
-    //   console.log('Selected Rows: ', state.selectedRows);
-    //};
-
-    // Toggle the state so React Table Table changes to `clearSelectedRows` are
-    // triggered
-
-
+    const forceUpdate = useForceUpdate();
 
     const selectProps = { indeterminate: isIndeterminate => isIndeterminate };
+
+    updateState.bind(updateExternalState, logStore);
 
     const pagination = true;
     const total = 1000;
     const perpage = 5;
-    const clear = true;
     
     useOnMount(logStore.getLogs);
     useOnMount(updateExternalState);
-    observer(updateExternalState);
+    observer(logStore.logs);
 
-    return( 
+
+    const handleChange = () => {
+        forceUpdate();
+    };
+    
+    return (
           <React.Fragment>      
                 <DataTable
                  title={title}
                  columns={columns}
-                 data={data}
+                 data={logStore.logs}
+                 selectableRows
                  selectableRowsComponent={Checkbox} // Pass the function only
                  conditionalRowStyles={conditionalRowStyles} 
                  pagination={pagination}
-                 //onSelectedRowsChange={handleClearRows}
-                 //clearSelectedRows={toggledClearRows}
+                 onChange={handleChange}
                  onSelectedRowsChange={v => updateExternalState(v, logStore, this, forceUpdate)}
                  paginationTotalRows={total}
                  paginationPerPage={perpage}
                  selectableRowsComponentProps={selectProps}
-                 selectableRows
                 />
                <LogModal visible={modalVisible} onCancel={() => setModalVisible(false)} />
            </React.Fragment>
