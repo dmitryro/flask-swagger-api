@@ -42,7 +42,7 @@
         "bourbon": "6.0.0",
         "create-react-class": "^15.6.3",
         "eventemitter3": "4.0.0",
-        "lodash": "4.17.15",
+        "lodash": "4.17.19",
         "computed-async-mobx": "^4.2.1",
         "mobx": "^5.15.4",
         "mobx-react": "^6.2.2",
