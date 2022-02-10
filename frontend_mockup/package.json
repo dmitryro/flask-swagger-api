@@ -87,7 +87,7 @@
     "mobx-react-router": "^4.1.0",
     "mobx-react-router-utils": "^3.1.8",
     "mobx-session": "^1.0.0",
-    "node-sass": "^4.13.1",
+    "node-sass": "^7.0.0",
     "postcss": "^7.0.25",
     "postcss-custom-properties": "^9.1.1",
     "postcss-browser-reporter": "^0.6.0",
